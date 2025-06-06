@@ -6,7 +6,7 @@ func GetLogger() zap.Logger {
 	cfg := zap.Config{
 		Encoding:         "json",
 		Level:            zap.NewAtomicLevelAt(zap.InfoLevel),
-		OutputPaths:      []string{"stdout", "logger/logs/app.log"},
+		OutputPaths:      []string{"stdout", "logger/app.log"},
 		ErrorOutputPaths: []string{"stderr"},
 		EncoderConfig:    zap.NewProductionEncoderConfig(),
 		InitialFields:    map[string]interface{}{},
