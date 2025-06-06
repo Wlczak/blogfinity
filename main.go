@@ -10,7 +10,7 @@ import (
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-
+	zap := logger.GetLogger()
 	type PageData struct {
 		Year int
 	}
@@ -20,7 +20,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	data := PageData{
 		Year: time.Now().Year(),
 	}
-	tmpl.Execute(w, data)
+	err := tmpl.Execute(w, data)
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
 }
 
 func main() {
