@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"text/template"
 	"time"
+
+	"github.com/Wlczak/blogfinity/logger"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -22,17 +24,20 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	zap := logger.GetLogger()
+
 	listener, err := net.Listen("tcp", "localhost:8080")
-	if err != nil {
-		panic(err)
-	}
 
 	if err != nil {
-		panic(err)
+		zap.Error(err.Error())
 	}
 	http.Handle("/", http.HandlerFunc(indexHandler))
 
 	println("Listening on http://localhost:8080")
 
-	http.Serve(listener, nil)
+	err = http.Serve(listener, nil)
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
 }
