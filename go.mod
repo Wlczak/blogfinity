@@ -1,6 +1,6 @@
 module github.com/Wlczak/blogfinity
 
-go 1.24.2
+go 1.24.4
 
 require go.uber.org/zap v1.27.0
 
