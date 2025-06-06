@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogfinity Search Results</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background: #222;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        main {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-form {
+            display: flex;
+            margin-bottom: 2rem;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #ccc;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+
+        .search-form button {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #007BFF;
+            background: #007BFF;
+            color: #fff;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .results {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .result-item {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1.25rem;
+            color: #007BFF;
+        }
+
+        .result-item p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .result-item .meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        footer {
+            background: #222;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/" style="color: white; text-decoration: none;">
+            <h1>Blogfinity</h1>
+        </a>
+    </header>
+    <main>
+        <form action="/search" method="GET" class="search-form">
+            <input type="text" name="q" placeholder="Search for an article..." required value="{{ .Query }}">
+            <button type="submit">Search</button>
+        </form>
+
+        <h2>Search Results</h2>
+        <div class="results">
+            <div class="result-item">
+                <h2><a href="/article/understanding-ai-ethics">Understanding AI Ethics</a></h2>
+                <p class="meta">Published: March 15, 2025 &bull; Author: Jane Doe</p>
+                <p>Explore the foundational principles and debates around ethical considerations in artificial
+                    intelligence, including bias mitigation, transparency, and accountability.</p>
+            </div>
+            <div class="result-item">
+                <h2><a href="/article/top-10-ai-tools-2025">Top 10 AI Tools in 2025</a></h2>
+                <p class="meta">Published: April 2, 2025 &bull; Author: John Smith</p>
+                <p>A curated list of the most powerful and user-friendly AI tools shaping industries this year, from
+                    image generation to natural language processing.</p>
+            </div>
+            <div class="result-item">
+                <h2><a href="/article/how-to-train-neural-networks">How to Train a Neural Network</a></h2>
+                <p class="meta">Published: May 20, 2025 &bull; Author: Alex Nguyen</p>
+                <p>A step-by-step guide to constructing, training, and fine-tuning neural networks for various machine
+                    learning tasks, with code examples and best practices.</p>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

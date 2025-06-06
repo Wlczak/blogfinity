@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Wlczak/blogfinity/logger"
+	"github.com/Wlczak/blogfinity/search"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -14,13 +15,17 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	type PageData struct {
 		Year int
 	}
-
-	tmpl := template.Must(template.ParseFiles("index.tmpl"))
+	var err error
+	tmplf, err := template.ParseFiles("templates/index.tmpl")
+	if err != nil {
+		zap.Error(err.Error())
+	}
+	tmpl := template.Must(tmplf, err)
 
 	data := PageData{
 		Year: time.Now().Year(),
 	}
-	err := tmpl.Execute(w, data)
+	err = tmpl.Execute(w, data)
 
 	if err != nil {
 		zap.Error(err.Error())
@@ -37,6 +42,7 @@ func main() {
 	}
 	http.Handle("/", http.HandlerFunc(indexHandler))
 
+	http.Handle("/search", http.HandlerFunc(search.HandleSearch))
 	println("Listening on http://localhost:8080")
 
 	err = http.Serve(listener, nil)

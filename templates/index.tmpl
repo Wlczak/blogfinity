@@ -81,6 +81,22 @@
             border-color: #0056b3;
         }
 
+        .search-form {
+            display: flex;
+            width: 100%;
+        }
+
+        .search-form input[type="text"] {
+            flex: 1;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .search-form button {
+            border-radius: 0 4px 4px 0;
+        }
+
+
         footer {
             background: #222;
             color: #fff;
@@ -107,14 +123,15 @@
             <h2>Discover, Read, and Be Inspired</h2>
         </div>
         <div class="search-box">
-            <form action="/search" method="GET">
+            <form action="/search" method="GET" class="search-form">
                 <input type="text" name="q" placeholder="Search for an article..." required>
                 <button type="submit">Search</button>
             </form>
         </div>
+
     </main>
     <footer>
-        <p>&copy; {{ now.Year }} Blogfinity. All rights reserved.</p>
+        <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
     </footer>
 </body>
 
