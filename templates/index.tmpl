@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogfinity</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #222;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        header p {
+            margin: 0.5rem 0 0;
+            font-size: 1rem;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .slogans {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .slogans h2 {
+            margin: 0.5rem 0;
+            font-size: 1.5rem;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-box input[type="text"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+
+        .search-box button {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid #007BFF;
+            background: #007BFF;
+            color: #fff;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .search-box button:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
+        footer {
+            background: #222;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Blogfinity</h1>
+        <p>The infinite AI-powered blog</p>
+    </header>
+    <main>
+        <div class="slogans">
+            <h2>Endless AI-Generated Content</h2>
+            <h2>Powered by Cutting-Edge Neural Networks</h2>
+            <h2>Discover, Read, and Be Inspired</h2>
+        </div>
+        <div class="search-box">
+            <form action="/search" method="GET">
+                <input type="text" name="q" placeholder="Search for an article..." required>
+                <button type="submit">Search</button>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; {{ now.Year }} Blogfinity. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
