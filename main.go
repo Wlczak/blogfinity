@@ -6,6 +6,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/Wlczak/blogfinity/search"
 )
@@ -34,6 +35,13 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	zap := logger.GetLogger()
+
+	db, err := database.GetDB()
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
+	database.Migrate(db)
 
 	listener, err := net.Listen("tcp", "localhost:8080")
 
