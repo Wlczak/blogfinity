@@ -1,8 +1,13 @@
 package ai
 
 import (
+	"bytes"
+	"fmt"
+	"net/http"
 	"sync"
 	"time"
+
+	"github.com/Wlczak/blogfinity/logger"
 )
 
 type Queue struct {
@@ -51,6 +56,7 @@ func CheckQueue(queue *Queue) {
 	for {
 		query, ok := queue.Pop()
 		if ok {
+			fmt.Println("Prompting AI with query: " + query)
 			PromptAi(query)
 		} else {
 			time.Sleep(1 * time.Second)
@@ -60,5 +66,24 @@ func CheckQueue(queue *Queue) {
 }
 
 func PromptAi(query string) {
-	println("Prompting AI with query: " + query)
+	zap := logger.GetLogger()
+	body := []byte(`{
+		{"model":"deepseek-r1:8b",
+		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
+		`“ and format it into a json format like so: {“title“:”<insert title here>”}","stream":false}
+	}`)
+
+	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(body))
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		zap.Error(err.Error())
+	}
+
+	defer response.Body.Close()
 }
