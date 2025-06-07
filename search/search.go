@@ -16,8 +16,9 @@ func HandleSearch(w http.ResponseWriter, r *http.Request) {
 	zap := logger.GetLogger()
 
 	type PageData struct {
-		Query string
-		Year  int
+		Query   string
+		Year    int
+		Results []models.Article
 	}
 
 	query := r.URL.Query().Get("q")
@@ -28,20 +29,23 @@ func HandleSearch(w http.ResponseWriter, r *http.Request) {
 	}
 	tmpl := template.Must(tmplf, err)
 
-	err = tmpl.Execute(w, PageData{
-		Query: query,
-		Year:  time.Now().Year(),
-	})
-
-	if err != nil {
-		zap.Error(err.Error())
-	}
 	searchResults := search(query)
 
 	println("Found " + strconv.Itoa(len(searchResults)) + " results for \"" + query + "\"")
 	for _, result := range searchResults {
 		println(result.Title)
 	}
+
+	err = tmpl.Execute(w, PageData{
+		Query:   query,
+		Year:    time.Now().Year(),
+		Results: searchResults,
+	})
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
+
 }
 
 func search(query string) []models.Article {
