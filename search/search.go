@@ -3,7 +3,6 @@ package search
 import (
 	"html/template"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/Wlczak/blogfinity/database"
@@ -12,7 +11,7 @@ import (
 	"github.com/lithammer/fuzzysearch/fuzzy"
 )
 
-func HandleSearch(w http.ResponseWriter, r *http.Request) {
+func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan string) {
 	zap := logger.GetLogger()
 
 	type PageData struct {
@@ -31,9 +30,16 @@ func HandleSearch(w http.ResponseWriter, r *http.Request) {
 
 	searchResults := search(query)
 
-	println("Found " + strconv.Itoa(len(searchResults)) + " results for \"" + query + "\"")
-	for _, result := range searchResults {
-		println(result.Title)
+	// println("Found " + strconv.Itoa(len(searchResults)) + " results for \"" + query + "\"")
+	// for _, result := range searchResults {
+	// 	println(result.Title)
+	// }
+
+	if len(searchResults) < 5 {
+		for i := len(searchResults); i < 5; i++ {
+			searchResults = append(searchResults, models.Article{})
+			queue <- query
+		}
 	}
 
 	err = tmpl.Execute(w, PageData{

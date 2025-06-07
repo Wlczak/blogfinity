@@ -6,6 +6,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/Wlczak/blogfinity/ai"
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/Wlczak/blogfinity/search"
@@ -37,11 +38,13 @@ func main() {
 	zap := logger.GetLogger()
 
 	db, err := database.GetDB()
-
 	if err != nil {
 		zap.Error(err.Error())
 	}
 	database.Migrate(db)
+
+	queueTransport := make(chan string)
+	go ai.HandleQueue(queueTransport)
 
 	listener, err := net.Listen("tcp", "localhost:8080")
 
@@ -50,7 +53,7 @@ func main() {
 	}
 	http.Handle("/", http.HandlerFunc(indexHandler))
 
-	http.Handle("/search", http.HandlerFunc(search.HandleSearch))
+	http.Handle("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { search.HandleSearch(w, r, queueTransport) }))
 	println("Listening on http://localhost:8080")
 
 	err = http.Serve(listener, nil)
