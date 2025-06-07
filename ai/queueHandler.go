@@ -84,6 +84,11 @@ func PromptAi(query string) {
 	if err != nil {
 		zap.Error(err.Error())
 	}
+	fmt.Println(response.Body)
 
-	defer response.Body.Close()
+	err = response.Body.Close()
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
 }
