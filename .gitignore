@@ -1,2 +1,3 @@
 
 logger/app.log
+gorm.db

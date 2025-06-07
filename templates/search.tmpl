@@ -120,7 +120,13 @@
 
         <h2>Search Results</h2>
         <div class="results">
+            {{ range .Results }}
             <div class="result-item">
+                <h2><a href="/article/{{ .ID }}">{{ .Title }}</a></h2>
+                <p class="meta">Published: {{ .CreatedAt }} &bull; Author: {{ .Author }}</p>
+            </div>
+            {{ end }}
+            <!-- <div class="result-item">
                 <h2><a href="/article/understanding-ai-ethics">Understanding AI Ethics</a></h2>
                 <p class="meta">Published: March 15, 2025 &bull; Author: Jane Doe</p>
                 <p>Explore the foundational principles and debates around ethical considerations in artificial
@@ -137,7 +143,7 @@
                 <p class="meta">Published: May 20, 2025 &bull; Author: Alex Nguyen</p>
                 <p>A step-by-step guide to constructing, training, and fine-tuning neural networks for various machine
                     learning tasks, with code examples and best practices.</p>
-            </div>
+            </div> -->
         </div>
     </main>
     <footer>
