@@ -2,9 +2,11 @@ package ai
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -66,14 +68,27 @@ func CheckQueue(queue *Queue) {
 	}
 }
 
+type OllamaResp struct {
+	Model      string `json:"model"`
+	CreatedAt  string `json:"created_at"`
+	Response   string `json:"response"`
+	Done       bool   `json:"done"`
+	DoneReason string `json:"done_reason"`
+	// other fields omitted
+}
+
+type TitleResp struct {
+	Title string `json:"title"`
+}
+
 func PromptAi(query string) {
 	zap := logger.GetLogger()
 	//deepseek-r1:8b
-	json := []byte(`{"model":"qwen:0.5b",
+	requestJson := []byte(`{"model":"deepseek-r1:1.5b-qwen-distill-q4_K_M",
 		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
-		`“ and format it into a json format like so: {“title“:”<insert title here>”}","stream":false}`)
+		`“, format it into a json format like so: {“title“:”<insert title here>”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title.","stream":false}`)
 
-	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(json))
+	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
@@ -92,5 +107,23 @@ func PromptAi(query string) {
 		panic(err)
 	}
 
-	fmt.Println(string(body))
+	raw := string(body)
+
+	fmt.Println(raw)
+
+	var out OllamaResp
+	if err := json.Unmarshal([]byte(raw), &out); err != nil {
+		panic(err)
+	}
+
+	resp := strings.Trim(out.Response, "`")                    // remove backticks
+	resp = strings.TrimSpace(strings.TrimPrefix(resp, "json")) // strip leading “json” label
+	resp = strings.TrimSpace(resp)
+
+	var titleOut TitleResp
+	if err := json.Unmarshal([]byte(resp), &titleOut); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Title:", titleOut.Title)
 }
