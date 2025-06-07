@@ -57,7 +57,8 @@ func search(query string) []models.Article {
 	return rankedFuzzySearch(articles, query)
 }
 
-func rankedFuzzySearch(articles []models.Article, query string) fuzzy.Ranks {
+func rankedFuzzySearch(articles []models.Article, query string) []models.Article {
+	var result []models.Article
 	var titles []string
 	var titleMap map[string]models.Article = make(map[string]models.Article)
 
@@ -68,5 +69,9 @@ func rankedFuzzySearch(articles []models.Article, query string) fuzzy.Ranks {
 
 	ranks := fuzzy.RankFindNormalizedFold(query, titles)
 
-	return ranks
+	for _, rank := range ranks {
+		result = append(result, titleMap[rank.Target])
+	}
+
+	return result
 }
