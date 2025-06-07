@@ -3,6 +3,7 @@ package ai
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -67,13 +68,13 @@ func CheckQueue(queue *Queue) {
 
 func PromptAi(query string) {
 	zap := logger.GetLogger()
-	body := []byte(`{
-		{"model":"deepseek-r1:8b",
+	//deepseek-r1:8b
+	json := []byte(`{"model":"qwen:0.5b",
 		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
-		`“ and format it into a json format like so: {“title“:”<insert title here>”}","stream":false}
-	}`)
+		`“ and format it into a json format like so: {“title“:”<insert title here>”}","stream":false}`)
 
-	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(body))
+	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(json))
+	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
 		zap.Error(err.Error())
@@ -84,11 +85,12 @@ func PromptAi(query string) {
 	if err != nil {
 		zap.Error(err.Error())
 	}
-	fmt.Println(response.Body)
+	defer response.Body.Close()
 
-	err = response.Body.Close()
-
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		zap.Error(err.Error())
+		panic(err)
 	}
+
+	fmt.Println(string(body))
 }

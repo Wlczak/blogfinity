@@ -34,9 +34,9 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan string) {
 	// for _, result := range searchResults {
 	// 	println(result.Title)
 	// }
-
-	if len(searchResults) < 5 {
-		for i := len(searchResults); i < 5; i++ {
+	var resultCount int = 1
+	if len(searchResults) < resultCount {
+		for i := len(searchResults); i < resultCount; i++ {
 			searchResults = append(searchResults, models.Article{})
 			queue <- query
 		}
