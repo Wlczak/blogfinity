@@ -107,7 +107,11 @@ func PromptAi(query string) {
 	if err != nil {
 		zap.Error(err.Error())
 	}
-	defer response.Body.Close()
+	defer func() {
+		if err := response.Body.Close(); err != nil {
+			zap.Error(err.Error())
+		}
+	}()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
