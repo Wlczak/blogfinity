@@ -83,10 +83,17 @@ type TitleResp struct {
 
 func PromptAi(query string) {
 	zap := logger.GetLogger()
-	//deepseek-r1:8b
-	requestJson := []byte(`{"model":"deepseek-r1:1.5b-qwen-distill-q4_K_M",
+	// deepseek-r1:8b
+	// deepseek-r1:1.5b-qwen-distill-q4_K_M
+	// gemma3:1b
+	// deepseek-coder:latest
+	// qwen:0.5b
+	// llama3.2:3b
+	// llama3.1:8b
+
+	requestJson := []byte(`{"model":"llama3.1:8b",
 		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
-		`“, format it into a json format like so: {“title“:”<insert title here>”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title.","stream":false}`)
+		`“, format it into a json format like so: {“title“:”<insert title here>”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title. Do not use special characters","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
