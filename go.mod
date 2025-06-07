@@ -4,6 +4,7 @@ go 1.24.4
 
 require (
 	github.com/glebarez/sqlite v1.11.0
+	github.com/lithammer/fuzzysearch v1.1.8
 	go.uber.org/zap v1.27.0
 	gorm.io/gorm v1.30.0
 )

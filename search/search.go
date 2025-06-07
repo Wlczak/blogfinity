@@ -3,9 +3,13 @@ package search
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/Wlczak/blogfinity/database"
+	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
+	"github.com/lithammer/fuzzysearch/fuzzy"
 )
 
 func HandleSearch(w http.ResponseWriter, r *http.Request) {
@@ -32,4 +36,37 @@ func HandleSearch(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		zap.Error(err.Error())
 	}
+	searchResults := search(query)
+
+	println("Found " + strconv.Itoa(len(searchResults)) + " results for \"" + query + "\"")
+	for _, result := range searchResults {
+		println(result.Title)
+	}
+}
+
+func search(query string) []models.Article {
+	zap := logger.GetLogger()
+	db, err := database.GetDB()
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
+
+	articles := models.GetArticles(db, 500)
+
+	return rankedFuzzySearch(articles, query)
+}
+
+func rankedFuzzySearch(articles []models.Article, query string) fuzzy.Ranks {
+	var titles []string
+	var titleMap map[string]models.Article = make(map[string]models.Article)
+
+	for _, aritcle := range articles {
+		titles = append(titles, aritcle.Title)
+		titleMap[aritcle.Title] = aritcle
+	}
+
+	ranks := fuzzy.RankFindNormalizedFold(query, titles)
+
+	return ranks
 }
