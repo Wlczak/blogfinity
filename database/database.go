@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/Wlczak/blogfinity/database/models"
+	"github.com/Wlczak/blogfinity/logger"
 	"github.com/glebarez/sqlite" // Pure go SQLite driver, checkout https://github.com/glebarez/sqlite for details
 	"gorm.io/gorm"
 )
@@ -14,5 +15,9 @@ func GetDB() (*gorm.DB, error) {
 }
 
 func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&models.Article{})
+	zap := logger.GetLogger()
+	err := db.AutoMigrate(&models.Article{})
+	if err != nil {
+		zap.Error(err.Error())
+	}
 }

@@ -64,7 +64,7 @@ func search(query string) []models.Article {
 func rankedFuzzySearch(articles []models.Article, query string) []models.Article {
 	var result []models.Article
 	var titles []string
-	var titleMap map[string]models.Article = make(map[string]models.Article)
+	titleMap := make(map[string]models.Article)
 
 	for _, aritcle := range articles {
 		titles = append(titles, aritcle.Title)
