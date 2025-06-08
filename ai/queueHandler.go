@@ -157,7 +157,7 @@ func PromptAi(query string) string {
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		panic(err)
+		zap.Error(err.Error())
 	}
 
 	raw := string(body)
@@ -166,7 +166,7 @@ func PromptAi(query string) string {
 
 	var out OllamaResp
 	if err := json.Unmarshal([]byte(raw), &out); err != nil {
-		panic(err)
+		zap.Error(err.Error())
 	}
 
 	resp := strings.Trim(out.Response, "`")                    // remove backticks
