@@ -32,6 +32,10 @@ func (a *Article) Create(db *gorm.DB) {
 }
 
 func (a *Article) Update(db *gorm.DB) {
+	dbArt := GetArticleById(db, a.ID)
+	if dbArt.Author != a.Author {
+		a.Author = "Title: " + a.Author + " Article: " + dbArt.Author
+	}
 	db.Save(&a)
 }
 
