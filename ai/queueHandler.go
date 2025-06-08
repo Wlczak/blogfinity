@@ -115,7 +115,7 @@ func PromptAi(query string) string {
 	// llama3.1:8b
 
 	requestJson := []byte(`{"model":"llama3.1:8b", "options": {"temperature": 1},
-		"prompt":"","stream":false}`)
+		"prompt":"` + query + `","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
