@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -15,18 +16,6 @@ import (
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 )
-
-type Queue struct {
-	mutex   *sync.Mutex
-	queries []AiQuery
-}
-
-type AiQuery struct {
-	Query   string
-	Article models.Article
-	Type    string
-	Model   string
-}
 
 func NewQueue() *Queue {
 	return &Queue{
@@ -69,16 +58,12 @@ func HandleQueue(queryCh chan AiQuery) {
 }
 
 func FilterModel(art AiQuery) string {
-	var model string
-	switch art.Model {
-	case "deepseek-r1:8b":
-		model = "deepseek-r1:8b"
-		break
-	default:
-		model = "qwen:0.5b"
-		break
+	models := GetModels()
+	if slices.Contains(models, art.Model) {
+		return art.Model
+	} else {
+		return models[0]
 	}
-	return model
 }
 
 func CheckQueue(queue *Queue) {

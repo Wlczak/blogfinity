@@ -19,6 +19,8 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 		Article models.Article
 		Year    int
 		Query   string
+		Models  []string
+		Model   string
 	}
 
 	query := r.URL.Query().Get("q")
@@ -56,6 +58,8 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 		Article: article,
 		Year:    time.Now().Year(),
 		Query:   query,
+		Models:  ai.GetModels(),
+		Model:   model,
 	})
 
 	if err != nil {

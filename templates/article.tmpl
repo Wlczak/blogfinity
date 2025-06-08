@@ -79,7 +79,15 @@
         <a href="/" style="color: white; text-decoration: none;">
             <h1>Blogfinity</h1>
         </a>
+        <div style="margin-top: 1rem;">
+            <select id="modelSelect" style="padding: .5rem; border-radius: 4px;">
+                {{ range .Models }}
+                <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+            </select>
+        </div>
     </header>
+
     <main>
         <h1>{{ .Article.Title }}</h1>
         <p class="meta">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author: {{ .Article.Author }}
@@ -87,18 +95,21 @@
         <div class="content">
             {{ .Article.Body }}
         </div>
-        <a href="/search?q={{ .Query }}" class="back-link">&larr; Back to search results</a>
+        <a href="/search?q={{ .Query }}&model={{ .Model }}" class="back-link">&larr; Back to search results</a>
     </main>
+
     <footer>
         <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
     </footer>
-    <script>
-        fetch('https://api.ipify.org?format=json', {
-            method: 'GET'
-        }).then(response => response.json()).then(data => {
-            console.log(data.ip);
-        })
 
+    <script>
+        const params = new URLSearchParams(window.location.search)
+        const select = document.getElementById('modelSelect')
+        if (params.get('model')) select.value = params.get('model')
+        select.addEventListener('change', () => {
+            params.set('model', select.value)
+            window.location.href = window.location.pathname + '?' + params.toString()
+        })
     </script>
 </body>
 
