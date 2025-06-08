@@ -1,6 +1,7 @@
 package search
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"time"
@@ -86,7 +87,11 @@ func rankedFuzzySearch(articles []models.Article, query string) []models.Article
 	ranks := fuzzy.RankFindNormalizedFold(query, titles)
 
 	for _, rank := range ranks {
-		result = append(result, titleMap[rank.Target])
+		if rank.Distance < 50 {
+			result = append(result, titleMap[rank.Target])
+		}
+		fmt.Println(rank.Distance)
+
 	}
 
 	return result

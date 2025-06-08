@@ -1,7 +1,6 @@
 package articles
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,7 +22,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 
 	urlParts := strings.Split(r.URL.Path, "/")
 	articleId := urlParts[len(urlParts)-1]
-	fmt.Println(articleId)
+	//fmt.Println(articleId)
 
 	tmplf, err := template.ParseFiles("templates/article.tmpl")
 

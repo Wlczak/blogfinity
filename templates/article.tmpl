@@ -92,6 +92,14 @@
     <footer>
         <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
     </footer>
+    <script>
+        fetch('https://api.ipify.org?format=json', {
+            method: 'GET'
+        }).then(response => response.json()).then(data => {
+            console.log(data.ip);
+        })
+
+    </script>
 </body>
 
 </html>
