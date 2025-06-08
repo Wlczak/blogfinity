@@ -75,7 +75,8 @@ func CheckQueue(queue *Queue) {
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes."
 
 				fmt.Println("Prompting AI with query: " + query.Query)
-				response := PromptAi(prompt1 + query.Query + prompt2)
+
+				response := PromptAi(prompt1 + strings.Trim(query.Query, `"`) + prompt2)
 
 				article := models.Article{Title: response, Body: "", Author: "AI"}
 
@@ -100,7 +101,7 @@ func CheckQueue(queue *Queue) {
 				article := query.Article
 				if !article.HasBody(db) {
 					fmt.Println("Prompting AI with query: " + query.Query)
-					response := PromptAi(prompt1 + query.Query + prompt2)
+					response := PromptAi(prompt1 + strings.Trim(query.Query, `"`) + prompt2)
 
 					article.Body = response
 
@@ -187,6 +188,8 @@ func PromptAi(query string) string {
 
 	fmt.Println("Cleaned response:", string(cleanResp))
 
-	return string(cleanResp)
+	output := strings.Trim(string(cleanResp), `"`)
+
+	return output
 
 }
