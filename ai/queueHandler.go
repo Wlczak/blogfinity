@@ -157,9 +157,7 @@ func PromptAi(query string) string {
 	cleanResp := regex.ReplaceAll([]byte(resp), []byte{})
 
 	bom := []byte{0xEF, 0xBB, 0xBF}
-	if bytes.HasPrefix(cleanResp, bom) {
-		cleanResp = cleanResp[len(bom):]
-	}
+	cleanResp = bytes.TrimPrefix(cleanResp, bom)
 
 	reTags := regexp.MustCompile(`(?s)<[^>]+>`)
 	cleanResp = reTags.ReplaceAll(cleanResp, []byte{})
