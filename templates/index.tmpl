@@ -33,6 +33,10 @@
             font-size: 1rem;
         }
 
+        header .model-selector {
+            margin-top: 1rem;
+        }
+
         main {
             flex: 1;
             display: flex;
@@ -96,7 +100,6 @@
             border-radius: 0 4px 4px 0;
         }
 
-
         footer {
             background: #222;
             color: #fff;
@@ -115,24 +118,43 @@
     <header>
         <h1>Blogfinity</h1>
         <p>The infinite AI-powered blog</p>
+
     </header>
     <main>
+
         <div class="slogans">
             <h2>Endless AI-Generated Content</h2>
             <h2>Powered by Cutting-Edge Neural Networks</h2>
             <h2>Discover, Read, and Be Inspired</h2>
         </div>
+
         <div class="search-box">
             <form action="/search" method="GET" class="search-form">
                 <input type="text" name="q" placeholder="Search for an article..." required>
+                <input type="hidden" name="model" value="{{ .Model }}">
                 <button type="submit">Search</button>
             </form>
         </div>
-
+        <div class="model-selector" style="margin-top: 35px;">
+            <select id="modelSelect" style="padding: .5rem; border-radius: 4px;">
+                {{ range .Models }}
+                <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+            </select>
+        </div>
     </main>
     <footer>
         <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
     </footer>
+    <script>
+        const params = new URLSearchParams(window.location.search)
+        const select = document.getElementById('modelSelect')
+        if (params.get('model')) select.value = params.get('model')
+        select.addEventListener('change', () => {
+            params.set('model', select.value)
+            window.location.href = window.location.pathname + '?' + params.toString()
+        })
+    </script>
 </body>
 
 </html>

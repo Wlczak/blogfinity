@@ -16,8 +16,13 @@ import (
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	zap := logger.GetLogger()
+
+	model := r.URL.Query().Get("model")
+
 	type PageData struct {
-		Year int
+		Year   int
+		Models []string
+		Model  string
 	}
 	var err error
 	tmplf, err := template.ParseFiles("templates/index.tmpl")
@@ -27,7 +32,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(tmplf, err)
 
 	data := PageData{
-		Year: time.Now().Year(),
+		Year:   time.Now().Year(),
+		Models: ai.GetModels(),
+		Model:  model,
 	}
 	err = tmpl.Execute(w, data)
 
