@@ -30,3 +30,13 @@ func GetArticleById(db *gorm.DB, id int) Article {
 func (a *Article) Create(db *gorm.DB) {
 	db.Create(&a)
 }
+
+func (a *Article) Update(db *gorm.DB) {
+	db.Save(&a)
+}
+
+func (a *Article) HasBody(db *gorm.DB) bool {
+	db.First(&a, a.ID)
+
+	return a.Body != ""
+}

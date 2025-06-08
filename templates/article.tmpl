@@ -85,9 +85,9 @@
         <p class="meta">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author: {{ .Article.Author }}
         </p>
         <div class="content">
-            {{ .Article.ContentHTML }}
+            {{ .Article.Body }}
         </div>
-        <a href="/search?q={{ .ReturnQuery }}" class="back-link">&larr; Back to search results</a>
+        <a href="/search?q=" class="back-link">&larr; Back to search results</a>
     </main>
     <footer>
         <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>

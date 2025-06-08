@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/Wlczak/blogfinity/ai"
 	"github.com/Wlczak/blogfinity/database"
@@ -17,6 +18,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 	zap := logger.GetLogger()
 	type PageData struct {
 		Article models.Article
+		Year    int
 	}
 
 	urlParts := strings.Split(r.URL.Path, "/")
@@ -40,8 +42,16 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 
 	article := models.GetArticleById(db, articleIdInt)
 
+	aiQuery := ai.AiQuery{
+		Query:   article.Title,
+		Type:    "body",
+		Article: article,
+	}
+	queue <- aiQuery
+
 	err = tmpl.Execute(w, PageData{
 		Article: article,
+		Year:    time.Now().Year(),
 	})
 
 	if err != nil {
