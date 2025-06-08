@@ -36,10 +36,10 @@ func NewQueue() *Queue {
 
 func (q *Queue) Push(query AiQuery) {
 	q.mutex.Lock()
-	maxQueries := 3
+	maxQueries := 5
 	defer q.mutex.Unlock()
 	if len(q.queries) <= maxQueries {
-		println("Added query: " + query.Query)
+		fmt.Println("Added query: " + query.Query)
 		q.queries = append(q.queries, query)
 	}
 }
@@ -63,7 +63,7 @@ func HandleQueue(queryCh chan AiQuery) {
 	for {
 		query := <-queryCh
 		queue.Push(query)
-		println("Received query: " + query.Query)
+		fmt.Println("Received query: " + query.Query)
 
 	}
 }
