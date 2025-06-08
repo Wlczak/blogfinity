@@ -36,8 +36,12 @@ func NewQueue() *Queue {
 
 func (q *Queue) Push(query AiQuery) {
 	q.mutex.Lock()
+	maxQueries := 10
 	defer q.mutex.Unlock()
-	q.queries = append(q.queries, query)
+	if len(q.queries) <= maxQueries {
+		println("Added query: " + query.Query)
+		q.queries = append(q.queries, query)
+	}
 }
 
 func (q *Queue) Pop() (AiQuery, bool) {
@@ -59,8 +63,8 @@ func HandleQueue(queryCh chan AiQuery) {
 	for {
 		query := <-queryCh
 		queue.Push(query)
-
 		println("Received query: " + query.Query)
+
 	}
 }
 
@@ -72,7 +76,7 @@ func CheckQueue(queue *Queue) {
 
 			if query.Type == "title" {
 				prompt1 := " i need you to generate an article title based on this search prompt: “"
-				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes."
+				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes. When you detect a diferent language from english write the title in that language."
 
 				fmt.Println("Prompting AI with query: " + query.Query)
 
@@ -90,7 +94,7 @@ func CheckQueue(queue *Queue) {
 			}
 			if query.Type == "body" {
 				prompt1 := " i need you to generate an article body based on this article title: “"
-				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long."
+				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long. When you detect a diferent language from english write the title in that language."
 
 				db, err := database.GetDB()
 
