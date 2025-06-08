@@ -87,7 +87,7 @@
         <div class="content">
             {{ .Article.Body }}
         </div>
-        <a href="/search?q=" class="back-link">&larr; Back to search results</a>
+        <a href="/search?q={{ .Query }}" class="back-link">&larr; Back to search results</a>
     </main>
     <footer>
         <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>

@@ -90,7 +90,6 @@ func rankedFuzzySearch(articles []models.Article, query string) []models.Article
 			result = append(result, titleMap[rank.Target])
 		}
 		//fmt.Println(rank.Distance)
-
 	}
 
 	return result
