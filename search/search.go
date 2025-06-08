@@ -22,6 +22,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery)
 	}
 
 	query := r.URL.Query().Get("q")
+	model := r.URL.Query().Get("model")
 
 	tmplf, err := template.ParseFiles("templates/search.tmpl")
 	if err != nil {
@@ -43,6 +44,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery)
 				Query:   query,
 				Type:    "title",
 				Article: models.Article{},
+				Model:   model,
 			}
 			queue <- aiQuery
 		}
@@ -86,7 +88,7 @@ func rankedFuzzySearch(articles []models.Article, query string) []models.Article
 	ranks := fuzzy.RankFindNormalizedFold(query, titles)
 
 	for _, rank := range ranks {
-		if rank.Distance < 75 {
+		if rank.Distance < 50 {
 			result = append(result, titleMap[rank.Target])
 		}
 		//fmt.Println(rank.Distance)

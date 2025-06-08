@@ -22,6 +22,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 	}
 
 	query := r.URL.Query().Get("q")
+	model := r.URL.Query().Get("model")
 	urlParts := strings.Split(r.URL.Path, "/")
 	articleId := urlParts[len(urlParts)-1]
 	//fmt.Println(articleId)
@@ -47,6 +48,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 		Query:   article.Title,
 		Type:    "body",
 		Article: article,
+		Model:   model,
 	}
 	queue <- aiQuery
 

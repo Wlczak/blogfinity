@@ -25,6 +25,7 @@ type AiQuery struct {
 	Query   string
 	Article models.Article
 	Type    string
+	Model   string
 }
 
 func NewQueue() *Queue {
@@ -64,8 +65,20 @@ func HandleQueue(queryCh chan AiQuery) {
 		query := <-queryCh
 		queue.Push(query)
 		fmt.Println("Received query: " + query.Query)
-
 	}
+}
+
+func FilterModel(art AiQuery) string {
+	var model string
+	switch art.Model {
+	case "deepseek-r1:8b":
+		model = "deepseek-r1:8b"
+		break
+	default:
+		model = "qwen:0.5b"
+		break
+	}
+	return model
 }
 
 func CheckQueue(queue *Queue) {
@@ -73,12 +86,12 @@ func CheckQueue(queue *Queue) {
 	for {
 		query, ok := queue.Pop()
 		if ok {
-
+			model := FilterModel(query)
 			if query.Type == "title" {
 				prompt1 := " i need you to generate an article title based on this search prompt: “"
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes."
 
-				response := PromptAi(prompt1 + strings.Trim(query.Query, `"`) + prompt2)
+				response := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model)
 
 				article := models.Article{Title: response.Text, Body: "", Author: response.Model}
 
@@ -102,7 +115,7 @@ func CheckQueue(queue *Queue) {
 
 				article := query.Article
 				if !article.HasBody(db) {
-					response := PromptAi(prompt1 + strings.Trim(query.Query, `"`) + prompt2)
+					response := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model)
 
 					article.Body = response.Text
 
@@ -130,7 +143,7 @@ type PrompResult struct {
 	Model string
 }
 
-func PromptAi(query string) PrompResult {
+func PromptAi(query string, model string) PrompResult {
 	zap := logger.GetLogger()
 	// deepseek-r1:8b
 	// deepseek-r1:1.5b-qwen-distill-q4_K_M
@@ -143,7 +156,7 @@ func PromptAi(query string) PrompResult {
 	// smollm:135m
 
 	fmt.Println("Prompting AI with query: " + query)
-	requestJson := []byte(`{"model":"deepseek-r1:8b", "options": {"temperature": 0.6},
+	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
 		"prompt":"` + query + `","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
