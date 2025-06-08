@@ -143,7 +143,7 @@ func PromptAi(query string) PrompResult {
 	// smollm:135m
 
 	fmt.Println("Prompting AI with query: " + query)
-	requestJson := []byte(`{"model":"deepseek-r1:1.5b-qwen-distill-q4_K_M", "options": {"temperature": 0.6},
+	requestJson := []byte(`{"model":"deepseek-r1:8b", "options": {"temperature": 0.6},
 		"prompt":"` + query + `","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
