@@ -18,28 +18,34 @@ import (
 
 type Queue struct {
 	mutex   *sync.Mutex
-	queries []string
+	queries []AiQuery
+}
+
+type AiQuery struct {
+	Query   string
+	Article models.Article
+	Type    string
 }
 
 func NewQueue() *Queue {
 	return &Queue{
 		mutex:   new(sync.Mutex),
-		queries: make([]string, 0),
+		queries: make([]AiQuery, 0),
 	}
 }
 
-func (q *Queue) Push(query string) {
+func (q *Queue) Push(query AiQuery) {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 	q.queries = append(q.queries, query)
 }
 
-func (q *Queue) Pop() (string, bool) {
+func (q *Queue) Pop() (AiQuery, bool) {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 
 	if len(q.queries) == 0 {
-		return "", false
+		return AiQuery{}, false
 	} else {
 		query := q.queries[0]
 		q.queries = q.queries[1:]
@@ -47,23 +53,37 @@ func (q *Queue) Pop() (string, bool) {
 	}
 }
 
-func HandleQueue(queryCh chan string) {
+func HandleQueue(queryCh chan AiQuery) {
 	var queue = NewQueue()
 	go CheckQueue(queue)
 	for {
 		query := <-queryCh
 		queue.Push(query)
 
-		println("Received query: " + query)
+		println("Received query: " + query.Query)
 	}
 }
 
 func CheckQueue(queue *Queue) {
+	zap := logger.GetLogger()
 	for {
 		query, ok := queue.Pop()
 		if ok {
-			fmt.Println("Prompting AI with query: " + query)
-			PromptAi(query)
+			fmt.Println("Prompting AI with query: " + query.Query)
+
+			if query.Type == "title" {
+				response := PromptAi(query.Query)
+				article := models.Article{Title: response, Body: "", Author: "AI"}
+
+				db, err := database.GetDB()
+
+				if err != nil {
+					zap.Error(err.Error())
+				}
+
+				article.Create(db)
+			}
+
 		} else {
 			time.Sleep(1 * time.Second)
 		}
@@ -80,11 +100,7 @@ type OllamaResp struct {
 	// other fields omitted
 }
 
-type TitleResp struct {
-	Title string `json:"title"`
-}
-
-func PromptAi(query string) {
+func PromptAi(query string) string {
 	zap := logger.GetLogger()
 	// deepseek-r1:8b
 	// deepseek-r1:1.5b-qwen-distill-q4_K_M
@@ -151,19 +167,6 @@ func PromptAi(query string) {
 
 	fmt.Println("Cleaned response:", string(cleanResp))
 
-	var titleOut TitleResp
+	return string(cleanResp)
 
-	titleOut.Title = string(cleanResp)
-
-	fmt.Println("Title:", titleOut.Title)
-
-	article := models.Article{Title: titleOut.Title, Body: "", Author: "AI"}
-
-	db, err := database.GetDB()
-
-	if err != nil {
-		zap.Error(err.Error())
-	}
-
-	article.Create(db)
 }

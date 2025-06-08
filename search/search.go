@@ -5,13 +5,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Wlczak/blogfinity/ai"
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 )
 
-func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan string) {
+func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery) {
 	zap := logger.GetLogger()
 
 	type PageData struct {
@@ -38,7 +39,12 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan string) {
 	if len(searchResults) < resultCount {
 		for i := len(searchResults); i < resultCount; i++ {
 			searchResults = append(searchResults, models.Article{})
-			queue <- query
+			aiQuery := ai.AiQuery{
+				Query:   query,
+				Type:    "title",
+				Article: models.Article{},
+			}
+			queue <- aiQuery
 		}
 	}
 

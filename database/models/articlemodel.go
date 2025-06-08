@@ -21,6 +21,12 @@ func GetArticles(db *gorm.DB, limit int) []Article {
 	return articles
 }
 
+func GetArticleById(db *gorm.DB, id int) Article {
+	var article Article
+	db.First(&article, id)
+	return article
+}
+
 func (a *Article) Create(db *gorm.DB) {
 	db.Create(&a)
 }

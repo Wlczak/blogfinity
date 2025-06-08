@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Wlczak/blogfinity/ai"
+	"github.com/Wlczak/blogfinity/articles"
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/Wlczak/blogfinity/search"
@@ -43,7 +44,7 @@ func main() {
 	}
 	database.Migrate(db)
 
-	queueTransport := make(chan string)
+	queueTransport := make(chan ai.AiQuery)
 	go ai.HandleQueue(queueTransport)
 
 	listener, err := net.Listen("tcp", "localhost:8080")
@@ -54,6 +55,9 @@ func main() {
 	http.Handle("/", http.HandlerFunc(indexHandler))
 
 	http.Handle("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { search.HandleSearch(w, r, queueTransport) }))
+
+	http.Handle("/article/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleArticle(w, r, queueTransport) }))
+
 	println("Listening on http://localhost:8080")
 
 	err = http.Serve(listener, nil)
