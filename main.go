@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 	"text/template"
@@ -47,7 +48,8 @@ func main() {
 	queueTransport := make(chan ai.AiQuery)
 	go ai.HandleQueue(queueTransport)
 
-	listener, err := net.Listen("tcp", "localhost:8080")
+	address := "0.0.0.0:8080"
+	listener, err := net.Listen("tcp", address)
 
 	if err != nil {
 		zap.Error(err.Error())
@@ -58,7 +60,7 @@ func main() {
 
 	http.Handle("/article/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleArticle(w, r, queueTransport) }))
 
-	println("Listening on http://localhost:8080")
+	fmt.Println("Listening on ", address)
 
 	err = http.Serve(listener, nil)
 
