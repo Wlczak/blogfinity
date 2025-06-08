@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -91,9 +92,9 @@ func PromptAi(query string) {
 	// llama3.2:3b
 	// llama3.1:8b
 
-	requestJson := []byte(`{"model":"llama3.1:8b",
+	requestJson := []byte(`{"model":"deepseek-r1:1.5b-qwen-distill-q4_K_M",
 		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
-		`“, format it into a json format like so: {“title“:”<insert title here>”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title. Do not use special characters","stream":false}`)
+		`“, format it into a json format like so: {“title“:”--insert title here--”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title. Do not use special characters. Do not put the title itself into {} brackets. Format it like a blog article title. Do not try to use backticks to mark file types AT ALL!!! Do not mark file types int the tripple backtick --format-- way at all, just never.","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
@@ -131,8 +132,24 @@ func PromptAi(query string) {
 	resp = strings.TrimSpace(strings.TrimPrefix(resp, "json")) // strip leading “json” label
 	resp = strings.TrimSpace(resp)
 
+	regex := regexp.MustCompile(`(?s)<think>.*?</think>`)
+	cleanResp := regex.ReplaceAll([]byte(resp), []byte{})
+
+	bom := []byte{0xEF, 0xBB, 0xBF}
+	if bytes.HasPrefix(cleanResp, bom) {
+		cleanResp = cleanResp[len(bom):]
+	}
+
+	reTags := regexp.MustCompile(`(?s)<[^>]+>`)
+	cleanResp = reTags.ReplaceAll(cleanResp, []byte{})
+
+	// drop or replace any invalid UTF-8 sequences
+	cleanResp = bytes.ToValidUTF8(cleanResp, nil)
+
+	fmt.Println("Cleaned response:", string(cleanResp))
+
 	var titleOut TitleResp
-	if err := json.Unmarshal([]byte(resp), &titleOut); err != nil {
+	if err := json.Unmarshal(cleanResp, &titleOut); err != nil {
 		panic(err)
 	}
 
