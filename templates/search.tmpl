@@ -25,6 +25,10 @@
             font-size: 2rem;
         }
 
+        header .model-selector {
+            margin-top: 1rem;
+        }
+
         main {
             padding: 2rem;
             max-width: 800px;
@@ -108,12 +112,20 @@
 
 <body>
     <header>
-        <a href="/" style="color: white; text-decoration: none;">
+        <a href="/?model={{ .Model }}" style="color: white; text-decoration: none;">
             <h1>Blogfinity</h1>
         </a>
+        <div class="model-selector">
+            <select id="modelSelect" style="padding: .5rem; border-radius: 4px;">
+                {{ range .Models }}
+                <option value="{{ . }}">{{ . }}</option>
+                {{ end }}
+            </select>
+        </div>
     </header>
     <main>
         <form action="/search" method="GET" class="search-form">
+            <input type="hidden" name="model" value="{{ .Model }}">
             <input type="text" name="q" placeholder="Search for an article..." required value="{{ .Query }}">
             <button type="submit">Search</button>
         </form>
@@ -122,33 +134,24 @@
         <div class="results">
             {{ range .Results }}
             <div class="result-item">
-                <h2><a href="/article/{{ .ID }}">{{ .Title }}</a></h2>
+                <h2><a href="/article/{{ .ID }}?q={{ $.Query }}&model={{ $.Model }}">{{ .Title }}</a></h2>
                 <p class="meta">Published: {{ .CreatedAt.Format "15:04 Jan 2, 2006" }} &bull; Author: {{ .Author }}</p>
             </div>
             {{ end }}
-            <!-- <div class="result-item">
-                <h2><a href="/article/understanding-ai-ethics">Understanding AI Ethics</a></h2>
-                <p class="meta">Published: March 15, 2025 &bull; Author: Jane Doe</p>
-                <p>Explore the foundational principles and debates around ethical considerations in artificial
-                    intelligence, including bias mitigation, transparency, and accountability.</p>
-            </div>
-            <div class="result-item">
-                <h2><a href="/article/top-10-ai-tools-2025">Top 10 AI Tools in 2025</a></h2>
-                <p class="meta">Published: April 2, 2025 &bull; Author: John Smith</p>
-                <p>A curated list of the most powerful and user-friendly AI tools shaping industries this year, from
-                    image generation to natural language processing.</p>
-            </div>
-            <div class="result-item">
-                <h2><a href="/article/how-to-train-neural-networks">How to Train a Neural Network</a></h2>
-                <p class="meta">Published: May 20, 2025 &bull; Author: Alex Nguyen</p>
-                <p>A step-by-step guide to constructing, training, and fine-tuning neural networks for various machine
-                    learning tasks, with code examples and best practices.</p>
-            </div> -->
         </div>
     </main>
     <footer>
         <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
     </footer>
+    <script>
+        const params = new URLSearchParams(window.location.search)
+        const select = document.getElementById('modelSelect')
+        if (params.get('model')) select.value = params.get('model')
+        select.addEventListener('change', () => {
+            params.set('model', select.value)
+            window.location.href = window.location.pathname + '?' + params.toString()
+        })
+    </script>
 </body>
 
 </html>

@@ -18,8 +18,13 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 	type PageData struct {
 		Article models.Article
 		Year    int
+		Query   string
+		Models  []string
+		Model   string
 	}
 
+	query := r.URL.Query().Get("q")
+	model := r.URL.Query().Get("model")
 	urlParts := strings.Split(r.URL.Path, "/")
 	articleId := urlParts[len(urlParts)-1]
 	//fmt.Println(articleId)
@@ -45,12 +50,16 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 		Query:   article.Title,
 		Type:    "body",
 		Article: article,
+		Model:   model,
 	}
 	queue <- aiQuery
 
 	err = tmpl.Execute(w, PageData{
 		Article: article,
 		Year:    time.Now().Year(),
+		Query:   query,
+		Models:  ai.GetModels(),
+		Model:   model,
 	})
 
 	if err != nil {
