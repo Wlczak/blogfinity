@@ -89,14 +89,15 @@ func PromptAi(query string) {
 	// deepseek-r1:8b
 	// deepseek-r1:1.5b-qwen-distill-q4_K_M
 	// gemma3:1b
+	// gemma3:4b
 	// deepseek-coder:latest
 	// qwen:0.5b
 	// llama3.2:3b
 	// llama3.1:8b
 
-	requestJson := []byte(`{"model":"llama3.1:8b",
+	requestJson := []byte(`{"model":"llama3.1:8b", "options": {"temperature": 1},
 		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
-		`“, format it into a json format like so: {“title“:”--insert title here--”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title. Do not use special characters. Do not put the title itself into {} brackets. Format it like a blog article title. Do not try to use backticks to mark file types AT ALL!!! Do not mark file types int the tripple backtick --format-- way at all, just never. The article also has to be searchable by the query as well with fuzzy search. So it should somewhat resemble the query.","stream":false}`)
+		`“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else sicne the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long.","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
@@ -151,9 +152,8 @@ func PromptAi(query string) {
 	fmt.Println("Cleaned response:", string(cleanResp))
 
 	var titleOut TitleResp
-	if err := json.Unmarshal(cleanResp, &titleOut); err != nil {
-		panic(err)
-	}
+
+	titleOut.Title = string(cleanResp)
 
 	fmt.Println("Title:", titleOut.Title)
 
