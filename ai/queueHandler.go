@@ -72,7 +72,10 @@ func CheckQueue(queue *Queue) {
 			fmt.Println("Prompting AI with query: " + query.Query)
 
 			if query.Type == "title" {
-				response := PromptAi(query.Query)
+				prompt1 := " i need you to generate an article title based on this search prompt: “"
+				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else sicne the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long."
+				response := PromptAi(prompt1 + query.Query + prompt2)
+
 				article := models.Article{Title: response, Body: "", Author: "AI"}
 
 				db, err := database.GetDB()
@@ -112,8 +115,7 @@ func PromptAi(query string) string {
 	// llama3.1:8b
 
 	requestJson := []byte(`{"model":"llama3.1:8b", "options": {"temperature": 1},
-		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
-		`“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else sicne the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long.","stream":false}`)
+		"prompt":"","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
