@@ -39,7 +39,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery)
 	// for _, result := range searchResults {
 	// 	println(result.Title)
 	// }
-	var resultCount = 5
+	var resultCount = ai.MaxSearchResults
 	if len(searchResults) < resultCount {
 		for i := len(searchResults); i < resultCount; i++ {
 			searchResults = append(searchResults, models.Article{})
@@ -93,7 +93,7 @@ func rankedFuzzySearch(articles []models.Article, query string) []models.Article
 	ranks := fuzzy.RankFindNormalizedFold(query, titles)
 
 	for _, rank := range ranks {
-		if rank.Distance < 50 {
+		if rank.Distance < ai.SearchDistance {
 			result = append(result, titleMap[rank.Target])
 		}
 		//fmt.Println(rank.Distance)
