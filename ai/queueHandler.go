@@ -11,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Wlczak/blogfinity/database"
+	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 )
 
@@ -92,9 +94,9 @@ func PromptAi(query string) {
 	// llama3.2:3b
 	// llama3.1:8b
 
-	requestJson := []byte(`{"model":"deepseek-r1:1.5b-qwen-distill-q4_K_M",
+	requestJson := []byte(`{"model":"llama3.1:8b",
 		"prompt":"i need you to generate an article title based on this search prompt: “` + query +
-		`“, format it into a json format like so: {“title“:”--insert title here--”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title. Do not use special characters. Do not put the title itself into {} brackets. Format it like a blog article title. Do not try to use backticks to mark file types AT ALL!!! Do not mark file types int the tripple backtick --format-- way at all, just never.","stream":false}`)
+		`“, format it into a json format like so: {“title“:”--insert title here--”}, do not add any other text to the response, do not use any text formating, use only plaintext. Be very creative in your title creation. Under any circumstances do not!!! write any more than one title. Do not use special characters. Do not put the title itself into {} brackets. Format it like a blog article title. Do not try to use backticks to mark file types AT ALL!!! Do not mark file types int the tripple backtick --format-- way at all, just never. The article also has to be searchable by the query as well with fuzzy search. So it should somewhat resemble the query.","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
@@ -154,4 +156,14 @@ func PromptAi(query string) {
 	}
 
 	fmt.Println("Title:", titleOut.Title)
+
+	article := models.Article{Title: titleOut.Title, Body: "", Author: "AI"}
+
+	db, err := database.GetDB()
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
+
+	article.Create(db)
 }

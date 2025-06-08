@@ -20,3 +20,7 @@ func GetArticles(db *gorm.DB, limit int) []Article {
 
 	return articles
 }
+
+func (a *Article) Create(db *gorm.DB) {
+	db.Create(&a)
+}
