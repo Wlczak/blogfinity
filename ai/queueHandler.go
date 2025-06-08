@@ -103,6 +103,7 @@ func CheckQueue(queue *Queue) {
 					response := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model)
 
 					article.Body = response.Text
+					article.Author = response.Model
 
 					article.Update(db)
 				}
