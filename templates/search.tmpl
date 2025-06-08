@@ -123,7 +123,7 @@
             {{ range .Results }}
             <div class="result-item">
                 <h2><a href="/article/{{ .ID }}">{{ .Title }}</a></h2>
-                <p class="meta">Published: {{ .CreatedAt }} &bull; Author: {{ .Author }}</p>
+                <p class="meta">Published: {{ .CreatedAt.Format "15:04 Jan 2, 2006" }} &bull; Author: {{ .Author }}</p>
             </div>
             {{ end }}
             <!-- <div class="result-item">

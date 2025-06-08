@@ -36,10 +36,10 @@ func NewQueue() *Queue {
 
 func (q *Queue) Push(query AiQuery) {
 	q.mutex.Lock()
-	maxQueries := 10
+	maxQueries := 5
 	defer q.mutex.Unlock()
 	if len(q.queries) <= maxQueries {
-		println("Added query: " + query.Query)
+		fmt.Println("Added query: " + query.Query)
 		q.queries = append(q.queries, query)
 	}
 }
@@ -63,7 +63,7 @@ func HandleQueue(queryCh chan AiQuery) {
 	for {
 		query := <-queryCh
 		queue.Push(query)
-		println("Received query: " + query.Query)
+		fmt.Println("Received query: " + query.Query)
 
 	}
 }
@@ -76,13 +76,11 @@ func CheckQueue(queue *Queue) {
 
 			if query.Type == "title" {
 				prompt1 := " i need you to generate an article title based on this search prompt: “"
-				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes. When you detect a diferent language from english write the title in that language."
-
-				fmt.Println("Prompting AI with query: " + query.Query)
+				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes."
 
 				response := PromptAi(prompt1 + strings.Trim(query.Query, `"`) + prompt2)
 
-				article := models.Article{Title: response, Body: "", Author: "AI"}
+				article := models.Article{Title: response.Text, Body: "", Author: response.Model}
 
 				db, err := database.GetDB()
 
@@ -94,7 +92,7 @@ func CheckQueue(queue *Queue) {
 			}
 			if query.Type == "body" {
 				prompt1 := " i need you to generate an article body based on this article title: “"
-				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long. When you detect a diferent language from english write the title in that language."
+				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long. Do not put the body into quotes."
 
 				db, err := database.GetDB()
 
@@ -104,10 +102,9 @@ func CheckQueue(queue *Queue) {
 
 				article := query.Article
 				if !article.HasBody(db) {
-					fmt.Println("Prompting AI with query: " + query.Query)
 					response := PromptAi(prompt1 + strings.Trim(query.Query, `"`) + prompt2)
 
-					article.Body = response
+					article.Body = response.Text
 
 					article.Update(db)
 				}
@@ -128,7 +125,12 @@ type OllamaResp struct {
 	// other fields omitted
 }
 
-func PromptAi(query string) string {
+type PrompResult struct {
+	Text  string
+	Model string
+}
+
+func PromptAi(query string) PrompResult {
 	zap := logger.GetLogger()
 	// deepseek-r1:8b
 	// deepseek-r1:1.5b-qwen-distill-q4_K_M
@@ -138,8 +140,10 @@ func PromptAi(query string) string {
 	// qwen:0.5b
 	// llama3.2:3b
 	// llama3.1:8b
+	// smollm:135m
 
-	requestJson := []byte(`{"model":"llama3.1:8b", "options": {"temperature": 1},
+	fmt.Println("Prompting AI with query: " + query)
+	requestJson := []byte(`{"model":"deepseek-r1:8b", "options": {"temperature": 0.6},
 		"prompt":"` + query + `","stream":false}`)
 
 	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
@@ -167,7 +171,7 @@ func PromptAi(query string) string {
 
 	raw := string(body)
 
-	fmt.Println(raw)
+	//fmt.Println(raw)
 
 	var out OllamaResp
 	if err := json.Unmarshal([]byte(raw), &out); err != nil {
@@ -190,10 +194,12 @@ func PromptAi(query string) string {
 	// drop or replace any invalid UTF-8 sequences
 	cleanResp = bytes.ToValidUTF8(cleanResp, nil)
 
-	fmt.Println("Cleaned response:", string(cleanResp))
-
 	output := strings.Trim(string(cleanResp), `"`)
 
-	return output
+	output = strings.TrimSpace(output)
+
+	fmt.Println("Cleaned response:", output)
+
+	return PrompResult{Text: output, Model: out.Model}
 
 }
