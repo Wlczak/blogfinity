@@ -133,10 +133,12 @@
         <h2>Search Results</h2>
         <div class="results">
             {{ range .Results }}
+            {{ if ne .Title "" }}
             <div class="result-item">
                 <h2><a href="/article/{{ .ID }}?q={{ $.Query }}&model={{ $.Model }}">{{ .Title }}</a></h2>
                 <p class="meta">Published: {{ .CreatedAt.Format "15:04 Jan 2, 2006" }} &bull; Author: {{ .Author }}</p>
             </div>
+            {{ end }}
             {{ end }}
         </div>
     </main>
