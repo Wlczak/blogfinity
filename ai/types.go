@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	MaxAiQueueSize   = 3
+	MaxAiQueueSize   = 15
 	MaxSearchResults = 25
 	SearchDistance   = 55
 )
