@@ -26,9 +26,9 @@ func NewQueue() *Queue {
 
 func (q *Queue) Push(query AiQuery) {
 	q.mutex.Lock()
-	maxQueries := 5
+
 	defer q.mutex.Unlock()
-	if len(q.queries) <= maxQueries {
+	if len(q.queries) <= MaxAiQueueSize {
 		fmt.Println("Added query: " + query.Query)
 		q.queries = append(q.queries, query)
 	}
@@ -103,6 +103,7 @@ func CheckQueue(queue *Queue) {
 					response := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model)
 
 					article.Body = response.Text
+					article.Author = response.Model
 
 					article.Update(db)
 				}
