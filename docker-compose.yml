@@ -5,6 +5,8 @@ services:
             - ./:/app
         working_dir: /app
         restart: always
+        extra_hosts:
+            - "nix:10.0.0.106"
         ports:
             - "1111:8080"
         command: go run .
