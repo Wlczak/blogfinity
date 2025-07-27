@@ -17,11 +17,12 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery)
 	zap := logger.GetLogger()
 
 	type PageData struct {
-		Query   string
-		Year    int
-		Results []models.Article
-		Models  []string
-		Model   string
+		Query        string
+		Year         int
+		Results      []models.Article
+		Models       []string
+		Model        string
+		ServerOnline bool
 	}
 
 	query := r.URL.Query().Get("q")
@@ -49,16 +50,19 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery)
 				Article: models.Article{},
 				Model:   model,
 			}
-			queue <- aiQuery
+			if ai.IsServerOnline() {
+				queue <- aiQuery
+			}
 		}
 	}
 	fmt.Println(model)
 	err = tmpl.Execute(w, PageData{
-		Query:   query,
-		Year:    time.Now().Year(),
-		Results: searchResults,
-		Models:  ai.GetModels(),
-		Model:   model,
+		Query:        query,
+		Year:         time.Now().Year(),
+		Results:      searchResults,
+		Models:       ai.GetModels(),
+		Model:        model,
+		ServerOnline: ai.IsServerOnline(),
 	})
 
 	if err != nil {

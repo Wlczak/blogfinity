@@ -20,9 +20,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	model := r.URL.Query().Get("model")
 
 	type PageData struct {
-		Year   int
-		Models []string
-		Model  string
+		Year         int
+		Models       []string
+		Model        string
+		ServerOnline bool
 	}
 	var err error
 	tmplf, err := template.ParseFiles("templates/index.tmpl")
@@ -32,9 +33,10 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(tmplf, err)
 
 	data := PageData{
-		Year:   time.Now().Year(),
-		Models: ai.GetModels(),
-		Model:  model,
+		Year:         time.Now().Year(),
+		Models:       ai.GetModels(),
+		Model:        model,
+		ServerOnline: ai.IsServerOnline(),
 	}
 	err = tmpl.Execute(w, data)
 
