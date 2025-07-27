@@ -136,11 +136,17 @@
             </form>
         </div>
         <div class="model-selector" style="margin-top: 35px;">
+            {{ if .ServerOnline }}
             <select id="modelSelect" style="padding: .5rem; border-radius: 4px;">
                 {{ range .Models }}
                 <option value="{{ . }}">{{ . }}</option>
                 {{ end }}
             </select>
+            {{ else }}
+            <p style="background: #ffdddd; color: #a94442; border: 1px solid #a94442; padding: 1rem; border-radius: 4px;">
+                AI server is offline. Article generation is disabled.
+            </p>
+            {{ end }}
         </div>
     </main>
     <footer>
