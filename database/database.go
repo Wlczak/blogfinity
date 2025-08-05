@@ -20,4 +20,9 @@ func Migrate(db *gorm.DB) {
 	if err != nil {
 		zap.Error(err.Error())
 	}
+
+	err = db.AutoMigrate(&models.Server{})
+	if err != nil {
+		zap.Error(err.Error())
+	}
 }
