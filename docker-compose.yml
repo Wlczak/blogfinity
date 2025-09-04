@@ -16,4 +16,4 @@ services:
         command: ./blogfinity
 networks:
     blogfinity-net:
-        name: blogfinity-net        
+        name: blogfinity-net
