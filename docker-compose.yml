@@ -11,4 +11,4 @@ services:
             - "nix:10.0.0.106"
         ports:
             - "1111:8080"
-        command: go run .
+        command: ./blogfinity
