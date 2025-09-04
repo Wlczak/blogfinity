@@ -1,8 +1,10 @@
 services:
     blogfinity:
-        image: golang:1.24.5-alpine3.22
+        image: wlczak/blogfinity:latest
         volumes:
-            - ./:/app
+            # - ./:/app # For local development
+            - ./gorm.db:/app/gorm.db
+            - ./logger/app.log:/app/logger/app.log
         working_dir: /app
         restart: always
         extra_hosts:
