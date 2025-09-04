@@ -1,6 +1,8 @@
 services:
     blogfinity:
         image: wlczak/blogfinity:latest
+        labels:
+            - com.centurylinklabs.watchtower.enable=true
         volumes:
             # - ./:/app # For local development
             - ./gorm.db:/app/gorm.db
