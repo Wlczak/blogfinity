@@ -14,6 +14,9 @@ services:
         ports:
             - "1111:8080"
         command: ./blogfinity
+        networks:
+            - blogfinity-net
+
 networks:
     blogfinity-net:
         name: blogfinity-net
