@@ -52,5 +52,9 @@ func HandleSitemap(w http.ResponseWriter, r *http.Request) {
 	xml := sm.XMLContent()
 
 	w.Header().Set("Content-Type", "application/xml")
-	w.Write(xml)
+	_, err = w.Write(xml)
+
+	if err != nil {
+		zap.Error(err.Error())
+	}
 }
