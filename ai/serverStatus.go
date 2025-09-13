@@ -20,7 +20,7 @@ func IsServerOnline() bool {
 		zap.Error(err.Error())
 	}
 
-	server := models.GetServerCache(db, "nix", "11434")
+	server := models.GetServerCache(db, "ollama-server", "11434")
 	if server.LastChecked.Add(5 * time.Minute).Before(time.Now()) {
 		fmt.Println("Updating server status")
 		go UpdateServerStatus(db, &server)

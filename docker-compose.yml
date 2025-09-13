@@ -10,7 +10,7 @@ services:
         working_dir: /app
         restart: always
         extra_hosts:
-            - "nix:10.0.0.106"
+            - "ollama-server:${OLLAMA_SERVER_IP}"
         ports:
             - "1111:8080"
         command: ./blogfinity
