@@ -145,7 +145,7 @@ func PromptAi(query string, model string) PrompResult {
 	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
 		"prompt":"` + query + `","stream":false}`)
 
-	request, err := http.NewRequest("POST", "http://nix:11434/api/generate", bytes.NewBuffer(requestJson))
+	request, err := http.NewRequest("POST", "http://ollama-server:11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
