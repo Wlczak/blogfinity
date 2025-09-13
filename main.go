@@ -12,6 +12,7 @@ import (
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/Wlczak/blogfinity/search"
+	"github.com/joho/godotenv"
 )
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,6 +49,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	zap := logger.GetLogger()
 
+	err := godotenv.Load()
+	if err != nil {
+		zap.Error(err.Error())
+	}
+
 	db, err := database.GetDB()
 	if err != nil {
 		zap.Error(err.Error())
@@ -68,6 +74,8 @@ func main() {
 	http.Handle("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { search.HandleSearch(w, r, queueTransport) }))
 
 	http.Handle("/article/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleArticle(w, r, queueTransport) }))
+
+	http.Handle("/sitemap.xml", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleSitemap(w, r) }))
 
 	fmt.Println("Listening on ", address)
 

@@ -1,3 +1,4 @@
 
 logger/app.log
 gorm.db
+.env
