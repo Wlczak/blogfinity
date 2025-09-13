@@ -4,13 +4,17 @@ go 1.25.1
 
 require (
 	github.com/glebarez/sqlite v1.11.0
+	github.com/ikeikeikeike/go-sitemap-generator/v2 v2.0.2
+	github.com/joho/godotenv v1.5.1
 	github.com/lithammer/fuzzysearch v1.1.8
 	go.uber.org/zap v1.27.0
 	gorm.io/gorm v1.30.3
 )
 
 require (
+	github.com/beevik/etree v1.1.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
