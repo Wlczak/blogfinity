@@ -40,7 +40,9 @@ func HandleSitemap(w http.ResponseWriter, r *http.Request) {
 		{"changefreq", "monthly"},
 		{"priority", "0.9"},
 	})
+
 	articles := models.GetArticles(db, 500)
+
 	for article := range articles {
 		sm.Add(stm.URL{
 			{"loc", "/article/" + fmt.Sprint(articles[article].ID)},
