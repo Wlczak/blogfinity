@@ -4,7 +4,7 @@
 ![uptime](https://shokuin.vlastas.cc/api/badge/4/uptime?style=for-the-badge)![phpstan](https://img.shields.io/github/actions/workflow/status/wlczak/blogfinity/.github%2Fworkflows%2Fgo-lint.yml?branch=main&style=for-the-badge&label=go-lint) ![build](https://img.shields.io/github/actions/workflow/status/wlczak/blogfinity/.github%2Fworkflows%2Fbuild.yml?branch=main&style=for-the-badge&label=build)
 
 An infinitely generating pile of AI slop articles.
-This project literaly doesnt have any reasonable purpose, but like what do we need a purposefull project for anyway?
+This project literaly doesn't serve any reasonable purpose, but like what do we need a purposefull project for anyway?
 
 ## Install by docker compose
 
