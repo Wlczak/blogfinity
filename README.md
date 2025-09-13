@@ -22,3 +22,10 @@ services:
             - "1111:8080"
         command: ./blogfinity
 ```
+
+You will also need to set the OLLAMA_SERVER_IP environment variable to the IP of your Ollama server. For example like this:
+
+```bash
+# .env
+OLLAMA_SERVER_IP=<ip>
+```
