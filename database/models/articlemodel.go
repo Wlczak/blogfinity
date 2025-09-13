@@ -16,7 +16,7 @@ func GetArticles(db *gorm.DB, limit int) []Article {
 
 	var articles []Article
 
-	db.Select("Title", "Body", "Author", "CreatedAt", "ID").Order("created_at DESC").Limit(500).Find(&articles)
+	db.Select("Title", "Body", "Author", "CreatedAt", "ID").Order("created_at DESC").Limit(limit).Find(&articles)
 
 	return articles
 }
