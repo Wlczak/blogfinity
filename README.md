@@ -1,1 +1,24 @@
-# blogfinity
+# Blogfinity
+
+![status](https://shokuin.vlastas.cc/api/badge/4/status?style=for-the-badge)
+![uptime](https://shokuin.vlastas.cc/api/badge/4/uptime?style=for-the-badge)![phpstan](https://img.shields.io/github/actions/workflow/status/wlczak/blogfinity/.github%2Fworkflows%2Fgo-lint.yml?branch=main&style=for-the-badge&label=go-lint) ![build](https://img.shields.io/github/actions/workflow/status/wlczak/blogfinity/.github%2Fworkflows%2Fbuild.yml?branch=main&style=for-the-badge&label=build)
+
+An infinitely generating pile of AI slop articles.
+This project literaly doesnt have any reasonable purpose, but like what do we need a purposefull project for anyway?
+
+## Install by docker compose
+
+```compose
+services:
+    blogfinity:
+        image: wlczak/blogfinity:latest
+            - ./gorm.db:/app/gorm.db
+            - ./logger/app.log:/app/logger/app.log
+        working_dir: /app
+        restart: always
+        extra_hosts:
+            - "nix:10.0.0.106"
+        ports:
+            - "1111:8080"
+        command: ./blogfinity
+```
