@@ -7,6 +7,7 @@ services:
             # - ./:/app # For local development
             - ./db/:/app/db/
             - ./logger/logs/:/app/logger/logs/
+            - ./:/app/conf/
         working_dir: /app
         restart: always
         extra_hosts:

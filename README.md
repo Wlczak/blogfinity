@@ -28,4 +28,5 @@ You will also need to set the OLLAMA_SERVER_IP environment variable to the IP of
 ```bash
 # .env
 OLLAMA_SERVER_IP=<ip>
+BASE_DOMAIN=<domain>
 ```
