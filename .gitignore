@@ -1,4 +1,4 @@
 
-logger/app.log
-gorm.db
+logger/logs/app.log
+db/gorm.db
 .env

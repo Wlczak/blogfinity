@@ -12,8 +12,8 @@ This project literaly doesn't serve any reasonable purpose, but like what do we 
 services:
     blogfinity:
         image: wlczak/blogfinity:latest
-            - ./gorm.db:/app/gorm.db
-            - ./logger/app.log:/app/logger/app.log
+            - ./db/:/app/db/
+            - ./logger/logs/:/app/logger/logs/
         working_dir: /app
         restart: always
         extra_hosts:
