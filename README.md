@@ -12,8 +12,8 @@ This project literaly doesn't serve any reasonable purpose, but like what do we 
 services:
     blogfinity:
         image: wlczak/blogfinity:latest
-            - ./gorm.db:/app/gorm.db
-            - ./logger/app.log:/app/logger/app.log
+            - ./db/:/app/db/
+            - ./logger/logs/:/app/logger/logs/
         working_dir: /app
         restart: always
         extra_hosts:
@@ -28,4 +28,5 @@ You will also need to set the OLLAMA_SERVER_IP environment variable to the IP of
 ```bash
 # .env
 OLLAMA_SERVER_IP=<ip>
+BASE_DOMAIN=<domain>
 ```

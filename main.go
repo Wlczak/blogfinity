@@ -49,7 +49,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	zap := logger.GetLogger()
 
-	err := godotenv.Load()
+	err := godotenv.Load("conf/.env")
 	if err != nil {
 		zap.Error(err.Error())
 	}

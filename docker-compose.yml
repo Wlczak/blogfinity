@@ -5,8 +5,9 @@ services:
             - com.centurylinklabs.watchtower.enable=true
         volumes:
             # - ./:/app # For local development
-            - ./gorm.db:/app/gorm.db
-            - ./logger/app.log:/app/logger/app.log
+            - ./db/:/app/db/
+            - ./logger/logs/:/app/logger/logs/
+            - ./:/app/conf/
         working_dir: /app
         restart: always
         extra_hosts:

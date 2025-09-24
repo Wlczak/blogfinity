@@ -9,7 +9,7 @@ import (
 
 // github.com/mattn/go-sqlite3
 func GetDB() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("db/gorm.db"), &gorm.Config{})
 
 	return db, err
 }
