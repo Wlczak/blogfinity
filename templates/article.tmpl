@@ -114,9 +114,7 @@
         })
         eval("id =  + {{ .Article.ID }}")
         const ws = new WebSocket('/ws/article/' + id)
-        ws.onopen = () => {
-            ws.send("hello")
-        }
+        
     </script>
 </body>
 

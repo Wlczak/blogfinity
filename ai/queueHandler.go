@@ -15,6 +15,7 @@ import (
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
+	"github.com/gorilla/websocket"
 )
 
 func NewQueue() *Queue {
@@ -86,7 +87,10 @@ func CheckQueue(queue *Queue) {
 				}
 			}
 			for _, conn := range query.EventConns {
-				conn.Close()
+				go func(conn *websocket.Conn) {
+					time.Sleep(1 * time.Second)
+					conn.Close()
+				}(conn)
 			}
 		} else {
 			time.Sleep(1 * time.Second)

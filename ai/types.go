@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
@@ -103,7 +104,10 @@ func (q *Queue) AddConn(conn *websocket.Conn, articleId int) {
 			return
 		}
 	}
-	conn.Close()
+	go func(conn *websocket.Conn) {
+		time.Sleep(1 * time.Second)
+		conn.Close()
+	}(conn)
 }
 
 type AiQuery struct {
