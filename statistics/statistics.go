@@ -16,6 +16,7 @@ type PageData struct {
 	Model        string
 	Year         int
 	Ongoing      Ongoing
+	TotalSlots   int
 }
 
 type Ongoing struct {
@@ -42,6 +43,7 @@ func HandleStats(w http.ResponseWriter, r *http.Request, queue *ai.Queue) {
 		Models:       ai.GetModels(),
 		Model:        model,
 		ServerOnline: ai.IsServerOnline(),
+		TotalSlots:   ai.MaxAiQueueSize,
 		Ongoing: Ongoing{
 			ArticleRequests: articleCount,
 			TitleRequests:   titleCount,

@@ -227,15 +227,18 @@
             const article = Number(data.ArticleRequests || 0)
             const title = Number(data.TitleRequests || 0)
             const total = article + title
+            eval("totalSlots = {{ .TotalSlots }}")
             document.getElementById('articleCount').textContent = article
             document.getElementById('titleCount').textContent = title
             document.getElementById('totalCount').textContent = total
-            const aPct = total === 0 ? 0 : Math.round((article/total)*100)
-            const tPct = total === 0 ? 0 : Math.round((title/total)*100)
+            const aPct = totalSlots === 0 ? 0 : Math.round((article/totalSlots)*100)
+            const tPct = totalSlots === 0 ? 0 : Math.round((title/totalSlots)*100)
+            const aPctFromTotal = totalSlots === 0 ? 0 : Math.round((article/totalSlots)*100)
+            const tPctFromTotal = totalSlots === 0 ? 0 : Math.round((title/totalSlots)*100)
             document.getElementById('articlePct').textContent = aPct + '%'
             document.getElementById('titlePct').textContent = tPct + '%'
-            document.getElementById('articleBar').style.width = clamp(aPct,0,100) + '%'
-            document.getElementById('titleBar').style.width = clamp(tPct,0,100) + '%'
+            document.getElementById('articleBar').style.width = clamp(aPctFromTotal,0,100) + '%'
+            document.getElementById('titleBar').style.width = clamp(tPctFromTotal,0,100) + '%'
             document.getElementById('breakArticleBar').style.width = clamp(aPct,0,100) + '%'
             document.getElementById('breakTitleBar').style.width = clamp(tPct,0,100) + '%'
         }

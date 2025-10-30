@@ -66,7 +66,7 @@ func (q *Queue) Push(query AiQuery) {
 	q.mutex.Lock()
 
 	defer q.mutex.Unlock()
-	if len(q.queries) <= MaxAiQueueSize {
+	if len(q.queries) < MaxAiQueueSize {
 		// fmt.Println("Added query: " + query.Query)
 		q.queries = append(q.queries, query)
 	}
