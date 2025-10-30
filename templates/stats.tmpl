@@ -173,7 +173,7 @@
             <div class="card total-card">
                 <div style="display:flex;flex-direction:column;">
                     <h3>Total active AI requests</h3>
-                    <p class="count" id="totalCount">{{ .Ongoing.ArticleRequests .Ongoing.TitleRequests }}</p>
+                    <p class="count" id="totalCount">{{ .Ongoing.TotalRequests }}</p>
                     <p class="sub">Combined active tasks across both categories</p>
                 </div>
                 <div style="min-width:220px;">
@@ -224,8 +224,8 @@
         function clamp(n, a, b){ return Math.max(a, Math.min(b, n)) }
 
         function updateDOM(data){
-            const article = Number(data.article || 0)
-            const title = Number(data.title || 0)
+            const article = Number(data.ArticleRequests || 0)
+            const title = Number(data.TitleRequests || 0)
             const total = article + title
             document.getElementById('articleCount').textContent = article
             document.getElementById('titleCount').textContent = title
@@ -249,7 +249,7 @@
         async function fetchCounts(){
             try{
                 const model = (select && select.value) || '{{ .Model }}'
-                const res = await fetch('/api/ai/requests?model=' + encodeURIComponent(model), { cache: 'no-store' })
+                const res = await fetch('/stats/api', { cache: 'no-store' })
                 if (!res.ok) throw new Error('network')
                 const json = await res.json()
                 updateDOM(json)

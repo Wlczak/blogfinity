@@ -24,35 +24,12 @@ func NewQueue() *Queue {
 	}
 }
 
-func (q *Queue) Push(query AiQuery) {
-	q.mutex.Lock()
-
-	defer q.mutex.Unlock()
-	if len(q.queries) <= MaxAiQueueSize {
-		fmt.Println("Added query: " + query.Query)
-		q.queries = append(q.queries, query)
-	}
-}
-
-func (q *Queue) Pop() (AiQuery, bool) {
-	q.mutex.Lock()
-	defer q.mutex.Unlock()
-
-	if len(q.queries) == 0 {
-		return AiQuery{}, false
-	} else {
-		query := q.queries[0]
-		q.queries = q.queries[1:]
-		return query, true
-	}
-}
-
 func HandleQueue(queryCh chan AiQuery, queue *Queue) {
 	go CheckQueue(queue)
 	for {
 		query := <-queryCh
 		queue.Push(query)
-		fmt.Println("Received query: " + query.Query)
+		// fmt.Println("Received query: " + query.Query)
 	}
 }
 
@@ -196,7 +173,7 @@ func PromptAi(query string, model string) PrompResult {
 
 	output = strings.TrimSpace(output)
 
-	fmt.Println("Cleaned response:", output)
+	// fmt.Println("Cleaned response:", output)
 
 	return PrompResult{Text: output, Model: out.Model}
 

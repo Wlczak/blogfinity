@@ -79,7 +79,9 @@ func main() {
 
 	http.Handle("/article/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleArticle(w, r, queueTransport) }))
 
-	http.Handle("/stats", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { statistics.HandleStats(w, r) }))
+	http.Handle("/stats", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { statistics.HandleStats(w, r, queue) }))
+
+	http.Handle("/stats/api", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { statistics.HandleStatsApi(w, r, queue) }))
 
 	http.Handle("/sitemap.xml", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleSitemap(w, r) }))
 

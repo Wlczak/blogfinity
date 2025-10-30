@@ -2,7 +2,6 @@ package ai
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"sync"
@@ -32,7 +31,7 @@ func GetModels() []string {
 		}
 		modelResp := ModelResponse{}
 		json.Unmarshal(body, &modelResp)
-		fmt.Println(modelResp)
+		// fmt.Println(modelResp)
 		var modelList []string
 		for _, v := range modelResp.Models {
 			modelList = append(modelList, v.Model)
@@ -54,6 +53,37 @@ type ModelItem struct {
 type Queue struct {
 	mutex   *sync.Mutex
 	queries []AiQuery
+}
+
+func (q *Queue) Push(query AiQuery) {
+	q.mutex.Lock()
+
+	defer q.mutex.Unlock()
+	if len(q.queries) <= MaxAiQueueSize {
+		// fmt.Println("Added query: " + query.Query)
+		q.queries = append(q.queries, query)
+	}
+}
+
+func (q *Queue) Pop() (AiQuery, bool) {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	if len(q.queries) == 0 {
+		return AiQuery{}, false
+	} else {
+		query := q.queries[0]
+		q.queries = q.queries[1:]
+		return query, true
+	}
+}
+
+func (q *Queue) Copy() []AiQuery {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+	dst := make([]AiQuery, len(q.queries))
+	copy(dst, q.queries)
+	return dst
 }
 
 type AiQuery struct {
