@@ -112,6 +112,11 @@
             params.set('model', select.value)
             window.location.href = window.location.pathname + '?' + params.toString()
         })
+        eval("id =  + {{ .Article.ID }}")
+        const ws = new WebSocket('/ws/article/' + id)
+        ws.onopen = () => {
+            ws.send("hello")
+        }
     </script>
 </body>
 

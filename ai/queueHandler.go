@@ -63,6 +63,7 @@ func CheckQueue(queue *Queue) {
 				}
 
 				article.Create(db)
+
 			}
 			if query.Type == "body" {
 				prompt1 := " i need you to generate an article body based on this article title: “"
@@ -83,6 +84,9 @@ func CheckQueue(queue *Queue) {
 
 					article.Update(db)
 				}
+			}
+			for _, conn := range query.EventConns {
+				conn.Close()
 			}
 		} else {
 			time.Sleep(1 * time.Second)

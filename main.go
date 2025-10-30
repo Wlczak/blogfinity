@@ -13,6 +13,7 @@ import (
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/Wlczak/blogfinity/search"
 	"github.com/Wlczak/blogfinity/statistics"
+	"github.com/Wlczak/blogfinity/ws"
 	"github.com/joho/godotenv"
 )
 
@@ -78,6 +79,8 @@ func main() {
 	http.Handle("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { search.HandleSearch(w, r, queueTransport) }))
 
 	http.Handle("/article/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleArticle(w, r, queueTransport) }))
+
+	http.Handle("/ws/article/{articleId}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { ws.HandleWsArticle(w, r, queue) }))
 
 	http.Handle("/stats", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { statistics.HandleStats(w, r, queue) }))
 

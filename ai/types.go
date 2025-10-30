@@ -8,6 +8,7 @@ import (
 
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -93,9 +94,23 @@ func (q *Queue) Copy() []AiQuery {
 	return dst
 }
 
+func (q *Queue) AddConn(conn *websocket.Conn, articleId int) {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+	for _, v := range q.queries {
+		if v.Article.ID == articleId {
+			v.EventConns = append(v.EventConns, conn)
+			return
+		}
+	}
+	conn.Close()
+}
+
 type AiQuery struct {
-	Query   string
-	Article models.Article
-	Type    string
-	Model   string
+	Query      string
+	Article    models.Article
+	Type       string
+	Model      string
+	RequestId  string
+	EventConns []*websocket.Conn
 }
