@@ -1,7 +1,6 @@
 package ai
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -22,7 +21,7 @@ func IsServerOnline() bool {
 
 	server := models.GetServerCache(db, "ollama-server", "11434")
 	if server.LastChecked.Add(5 * time.Minute).Before(time.Now()) {
-		fmt.Println("Updating server status")
+		// fmt.Println("Updating server status")
 		go UpdateServerStatus(db, &server)
 	}
 	return server.Online

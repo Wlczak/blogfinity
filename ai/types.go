@@ -1,9 +1,13 @@
 package ai
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
 	"sync"
 
 	"github.com/Wlczak/blogfinity/database/models"
+	"github.com/Wlczak/blogfinity/logger"
 )
 
 const (
@@ -13,12 +17,80 @@ const (
 )
 
 func GetModels() []string {
-	return []string{"qwen:0.5b", "deepseek-r1:1.5b-qwen-distill-q4_K_M", "gemma3:1b", "gemma3:4b", "deepseek-coder:latest", "llama3.2:3b", "llama3.1:8b", "smollm:135m"}
+	zap := logger.GetLogger()
+	if IsServerOnline() {
+		resp, err := http.Get("http://ollama-server:11434/api/tags")
+		if err != nil {
+			zap.Error(err.Error())
+		}
+		var body []byte
+		body, err = io.ReadAll(resp.Body)
+
+		if err != nil {
+			zap.Error(err.Error())
+		}
+		modelResp := ModelResponse{}
+		err = json.Unmarshal(body, &modelResp)
+		if err != nil {
+			zap.Error(err.Error())
+		}
+		// fmt.Println(modelResp)
+		var modelList []string
+		for _, v := range modelResp.Models {
+			modelList = append(modelList, v.Model)
+		}
+		err = resp.Body.Close()
+		if err != nil {
+			zap.Error(err.Error())
+		}
+		return modelList
+
+	}
+	return []string{}
+}
+
+type ModelResponse struct {
+	Models []ModelItem `json:"models"`
+}
+
+type ModelItem struct {
+	Model string `json:"model"`
 }
 
 type Queue struct {
 	mutex   *sync.Mutex
 	queries []AiQuery
+}
+
+func (q *Queue) Push(query AiQuery) {
+	q.mutex.Lock()
+
+	defer q.mutex.Unlock()
+	if len(q.queries) < MaxAiQueueSize {
+		// fmt.Println("Added query: " + query.Query)
+		q.queries = append(q.queries, query)
+	}
+}
+
+func (q *Queue) Pop() (AiQuery, bool) {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	if len(q.queries) == 0 {
+		return AiQuery{}, false
+	} else {
+		query := q.queries[0]
+		q.queries = q.queries[1:]
+		return query, true
+	}
+}
+
+func (q *Queue) Copy() []AiQuery {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+	dst := make([]AiQuery, len(q.queries))
+	copy(dst, q.queries)
+	return dst
 }
 
 type AiQuery struct {

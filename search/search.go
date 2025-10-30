@@ -1,7 +1,6 @@
 package search
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"time"
@@ -55,7 +54,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery)
 			}
 		}
 	}
-	fmt.Println(model)
+	// fmt.Println(model)
 	err = tmpl.Execute(w, PageData{
 		Query:        query,
 		Year:         time.Now().Year(),
