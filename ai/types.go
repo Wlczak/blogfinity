@@ -25,16 +25,23 @@ func GetModels() []string {
 		}
 		var body []byte
 		body, err = io.ReadAll(resp.Body)
-		defer resp.Body.Close()
+
 		if err != nil {
 			zap.Error(err.Error())
 		}
 		modelResp := ModelResponse{}
-		json.Unmarshal(body, &modelResp)
+		err = json.Unmarshal(body, &modelResp)
+		if err != nil {
+			zap.Error(err.Error())
+		}
 		// fmt.Println(modelResp)
 		var modelList []string
 		for _, v := range modelResp.Models {
 			modelList = append(modelList, v.Model)
+		}
+		err = resp.Body.Close()
+		if err != nil {
+			zap.Error(err.Error())
 		}
 		return modelList
 
