@@ -231,8 +231,8 @@
             document.getElementById('articleCount').textContent = article
             document.getElementById('titleCount').textContent = title
             document.getElementById('totalCount').textContent = total
-            const aPct = totalSlots === 0 ? 0 : Math.round((article/totalSlots)*100)
-            const tPct = totalSlots === 0 ? 0 : Math.round((title/totalSlots)*100)
+            const aPct = totalSlots === 0 ? 0 : Math.round((article/total)*100)
+            const tPct = totalSlots === 0 ? 0 : Math.round((title/total)*100)
             const aPctFromTotal = totalSlots === 0 ? 0 : Math.round((article/totalSlots)*100)
             const tPctFromTotal = totalSlots === 0 ? 0 : Math.round((title/totalSlots)*100)
             document.getElementById('articlePct').textContent = aPct + '%'
