@@ -123,7 +123,8 @@
                 {{ end }}
             </select>
             {{ else }}
-            <p style="background: #ffdddd; color: #a94442; border: 1px solid #a94442; padding: 1rem; border-radius: 4px;">
+            <p
+                style="background: #ffdddd; color: #a94442; border: 1px solid #a94442; padding: 1rem; border-radius: 4px;">
                 AI server is offline. Article generation is disabled.
             </p>
             {{ end }}
@@ -149,7 +150,8 @@
         </div>
     </main>
     <footer>
-        <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
+        <p>&copy; {{ .Year }} Blogfinity. All rights reserved. <a style="color: white ;" href="/stats">Site
+                statistics</a></p>
     </footer>
     <script>
         const params = new URLSearchParams(window.location.search)

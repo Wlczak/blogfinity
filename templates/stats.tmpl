@@ -1,127 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Requests – Blogfinity</title>
     <style>
-        body{
-            margin:0;
-            font-family:Arial, sans-serif;
-            background:#f4f4f4;
-            color:#333;
-            display:flex;
-            flex-direction:column;
-            min-height:100vh;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        header{
-            background:#222;
-            color:#fff;
-            padding:1rem 2rem;
-            text-align:center;
+
+        header {
+            background: #222;
+            color: #fff;
+            padding: 1rem 2rem;
+            text-align: center;
         }
-        header h1{
-            margin:0;
-            font-size:2rem;
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
         }
-        header p{
-            margin:0.4rem 0 0;
-            font-size:0.95rem;
-            opacity:0.9;
+
+        header p {
+            margin: 0.4rem 0 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
         }
-        main{
-            flex:1;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            justify-content:flex-start;
-            padding:2rem;
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem;
         }
-        .status-wrap{
-            width:100%;
-            max-width:1000px;
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:1.25rem;
-            align-items:start;
+
+        .status-wrap {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            align-items: start;
         }
-        .card{
-            background:#fff;
-            padding:1.25rem;
-            border-radius:8px;
-            box-shadow:0 2px 6px rgba(0,0,0,0.08);
-            display:flex;
-            flex-direction:column;
-            gap:.75rem;
+
+        .card {
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
         }
-        .card h3{
-            margin:0;
-            font-size:1.05rem;
-            color:#222;
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #222;
         }
-        .count{
-            font-size:2.4rem;
-            font-weight:700;
-            margin:0;
-            color:#007BFF;
+
+        .count {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin: 0;
+            color: #007BFF;
         }
-        .sub{
-            font-size:.9rem;
-            color:#666;
+
+        .sub {
+            font-size: .9rem;
+            color: #666;
         }
-        .total-card{
-            grid-column:1/-1;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:1rem;
+
+        .total-card {
+            grid-column: 1/-1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
         }
-        .progress{
-            height:10px;
-            width:100%;
-            background:linear-gradient(90deg,#e6f0ff 0%, #f4f4f4 0%);
-            border-radius:999px;
-            overflow:hidden;
-            position:relative;
-            border:1px solid #e6eefb;
+
+        .progress {
+            height: 10px;
+            width: 100%;
+            background: linear-gradient(90deg, #e6f0ff 0%, #f4f4f4 0%);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #e6eefb;
         }
-        .progress > span{
-            display:block;
-            height:100%;
-            width:0%;
-            background:linear-gradient(90deg,#007BFF,#0056b3);
-            transition:width 400ms ease;
+
+        .progress>span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #007BFF, #0056b3);
+            transition: width 400ms ease;
         }
-        .controls{
-            margin-top:1rem;
-            display:flex;
-            gap:1rem;
-            align-items:center;
+
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
         }
-        .model-selector{
-            margin-left:auto;
+
+        .model-selector {
+            margin-left: auto;
         }
-        .offline{
-            background:#ffdddd;
-            color:#a94442;
-            border:1px solid #a94442;
-            padding:.75rem;
-            border-radius:6px;
+
+        .offline {
+            background: #ffdddd;
+            color: #a94442;
+            border: 1px solid #a94442;
+            padding: .75rem;
+            border-radius: 6px;
         }
-        footer{
-            background:#222;
-            color:#fff;
-            text-align:center;
-            padding:1rem 0;
-            margin-top:auto;
+
+        footer {
+            background: #222;
+            color: #fff;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: auto;
         }
-        footer p{margin:0;font-size:.9rem}
-        @media (max-width:760px){
-            .status-wrap{grid-template-columns:1fr}
-            .total-card{flex-direction:column;align-items:stretch;gap:.5rem}
+
+        footer p {
+            margin: 0;
+            font-size: .9rem
+        }
+
+        @media (max-width:760px) {
+            .status-wrap {
+                grid-template-columns: 1fr
+            }
+
+            .total-card {
+                flex-direction: column;
+                align-items: stretch;
+                gap: .5rem
+            }
         }
     </style>
 </head>
+
 <body>
     <header>
         <a href="/?model={{ .Model }}" style="color:white;text-decoration:none">
@@ -180,7 +210,8 @@
                     <h3 style="margin-bottom:.5rem;">Breakdown</h3>
                     <div style="display:flex;gap:.5rem;align-items:center;">
                         <div style="flex:1">
-                            <div style="display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:.25rem;">
+                            <div
+                                style="display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:.25rem;">
                                 <span>Articles</span><span id="articlePct">0%</span>
                             </div>
                             <div class="progress" aria-hidden="true">
@@ -192,7 +223,8 @@
 
                     <div style="display:flex;gap:.5rem;align-items:center;margin-top:.6rem;">
                         <div style="flex:1">
-                            <div style="display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:.25rem;">
+                            <div
+                                style="display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:.25rem;">
                                 <span>Titles</span><span id="titlePct">0%</span>
                             </div>
                             <div class="progress" aria-hidden="true">
@@ -207,7 +239,8 @@
     </main>
 
     <footer>
-        <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
+        <p>&copy; {{ .Year }} Blogfinity. All rights reserved. <a style="color: white ;" href="/stats">Site
+                statistics</a></p>
     </footer>
 
     <script>
@@ -221,9 +254,9 @@
             })
         }
 
-        function clamp(n, a, b){ return Math.max(a, Math.min(b, n)) }
+        function clamp(n, a, b) { return Math.max(a, Math.min(b, n)) }
 
-        function updateDOM(data){
+        function updateDOM(data) {
             const article = Number(data.ArticleRequests || 0)
             const title = Number(data.TitleRequests || 0)
             const total = article + title
@@ -231,16 +264,16 @@
             document.getElementById('articleCount').textContent = article
             document.getElementById('titleCount').textContent = title
             document.getElementById('totalCount').textContent = total
-            const aPct = totalSlots === 0 ? 0 : Math.round((article/total)*100)
-            const tPct = totalSlots === 0 ? 0 : Math.round((title/total)*100)
-            const aPctFromTotal = totalSlots === 0 ? 0 : Math.round((article/totalSlots)*100)
-            const tPctFromTotal = totalSlots === 0 ? 0 : Math.round((title/totalSlots)*100)
+            const aPct = totalSlots === 0 ? 0 : Math.round((article / total) * 100)
+            const tPct = totalSlots === 0 ? 0 : Math.round((title / total) * 100)
+            const aPctFromTotal = totalSlots === 0 ? 0 : Math.round((article / totalSlots) * 100)
+            const tPctFromTotal = totalSlots === 0 ? 0 : Math.round((title / totalSlots) * 100)
             document.getElementById('articlePct').textContent = aPct + '%'
             document.getElementById('titlePct').textContent = tPct + '%'
-            document.getElementById('articleBar').style.width = clamp(aPctFromTotal,0,100) + '%'
-            document.getElementById('titleBar').style.width = clamp(tPctFromTotal,0,100) + '%'
-            document.getElementById('breakArticleBar').style.width = clamp(aPct,0,100) + '%'
-            document.getElementById('breakTitleBar').style.width = clamp(tPct,0,100) + '%'
+            document.getElementById('articleBar').style.width = clamp(aPctFromTotal, 0, 100) + '%'
+            document.getElementById('titleBar').style.width = clamp(tPctFromTotal, 0, 100) + '%'
+            document.getElementById('breakArticleBar').style.width = clamp(aPct, 0, 100) + '%'
+            document.getElementById('breakTitleBar').style.width = clamp(tPct, 0, 100) + '%'
         }
 
         const initial = {
@@ -249,14 +282,14 @@
         }
         updateDOM(initial)
 
-        async function fetchCounts(){
-            try{
+        async function fetchCounts() {
+            try {
                 const model = (select && select.value) || '{{ .Model }}'
                 const res = await fetch('/stats/api', { cache: 'no-store' })
                 if (!res.ok) throw new Error('network')
                 const json = await res.json()
                 updateDOM(json)
-            }catch(e){
+            } catch (e) {
                 return
             }
         }
@@ -264,4 +297,5 @@
         setInterval(fetchCounts, 2000)
     </script>
 </body>
+
 </html>
