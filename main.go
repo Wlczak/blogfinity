@@ -12,6 +12,7 @@ import (
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/Wlczak/blogfinity/search"
+	"github.com/Wlczak/blogfinity/statistics"
 	"github.com/joho/godotenv"
 )
 
@@ -61,7 +62,8 @@ func main() {
 	database.Migrate(db)
 
 	queueTransport := make(chan ai.AiQuery)
-	go ai.HandleQueue(queueTransport)
+	var queue = ai.NewQueue()
+	go ai.HandleQueue(queueTransport, queue)
 
 	address := "0.0.0.0:8080"
 	listener, err := net.Listen("tcp", address)
@@ -76,6 +78,8 @@ func main() {
 	http.Handle("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { search.HandleSearch(w, r, queueTransport) }))
 
 	http.Handle("/article/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleArticle(w, r, queueTransport) }))
+
+	http.Handle("/stats", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { statistics.HandleStats(w, r) }))
 
 	http.Handle("/sitemap.xml", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleSitemap(w, r) }))
 

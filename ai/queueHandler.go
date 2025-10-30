@@ -47,8 +47,7 @@ func (q *Queue) Pop() (AiQuery, bool) {
 	}
 }
 
-func HandleQueue(queryCh chan AiQuery) {
-	var queue = NewQueue()
+func HandleQueue(queryCh chan AiQuery, queue *Queue) {
 	go CheckQueue(queue)
 	for {
 		query := <-queryCh

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Requests – Blogfinity</title>
+    <style>
+        body{
+            margin:0;
+            font-family:Arial, sans-serif;
+            background:#f4f4f4;
+            color:#333;
+            display:flex;
+            flex-direction:column;
+            min-height:100vh;
+        }
+        header{
+            background:#222;
+            color:#fff;
+            padding:1rem 2rem;
+            text-align:center;
+        }
+        header h1{
+            margin:0;
+            font-size:2rem;
+        }
+        header p{
+            margin:0.4rem 0 0;
+            font-size:0.95rem;
+            opacity:0.9;
+        }
+        main{
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:flex-start;
+            padding:2rem;
+        }
+        .status-wrap{
+            width:100%;
+            max-width:1000px;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:1.25rem;
+            align-items:start;
+        }
+        .card{
+            background:#fff;
+            padding:1.25rem;
+            border-radius:8px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.08);
+            display:flex;
+            flex-direction:column;
+            gap:.75rem;
+        }
+        .card h3{
+            margin:0;
+            font-size:1.05rem;
+            color:#222;
+        }
+        .count{
+            font-size:2.4rem;
+            font-weight:700;
+            margin:0;
+            color:#007BFF;
+        }
+        .sub{
+            font-size:.9rem;
+            color:#666;
+        }
+        .total-card{
+            grid-column:1/-1;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:1rem;
+        }
+        .progress{
+            height:10px;
+            width:100%;
+            background:linear-gradient(90deg,#e6f0ff 0%, #f4f4f4 0%);
+            border-radius:999px;
+            overflow:hidden;
+            position:relative;
+            border:1px solid #e6eefb;
+        }
+        .progress > span{
+            display:block;
+            height:100%;
+            width:0%;
+            background:linear-gradient(90deg,#007BFF,#0056b3);
+            transition:width 400ms ease;
+        }
+        .controls{
+            margin-top:1rem;
+            display:flex;
+            gap:1rem;
+            align-items:center;
+        }
+        .model-selector{
+            margin-left:auto;
+        }
+        .offline{
+            background:#ffdddd;
+            color:#a94442;
+            border:1px solid #a94442;
+            padding:.75rem;
+            border-radius:6px;
+        }
+        footer{
+            background:#222;
+            color:#fff;
+            text-align:center;
+            padding:1rem 0;
+            margin-top:auto;
+        }
+        footer p{margin:0;font-size:.9rem}
+        @media (max-width:760px){
+            .status-wrap{grid-template-columns:1fr}
+            .total-card{flex-direction:column;align-items:stretch;gap:.5rem}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/?model={{ .Model }}" style="color:white;text-decoration:none">
+            <h1>Blogfinity</h1>
+        </a>
+        <p>Realtime AI job monitor</p>
+    </header>
+
+    <main>
+        <div class="controls" style="width:100%;max-width:1000px;">
+            <div>
+                <strong>Server:</strong>
+                {{ if .ServerOnline }}
+                <span>Online</span>
+                {{ else }}
+                <span class="offline">Offline — generation paused</span>
+                {{ end }}
+            </div>
+            <div class="model-selector">
+                {{ if .ServerOnline }}
+                <select id="modelSelect" style="padding:.5rem;border-radius:4px;">
+                    {{ range .Models }}
+                    <option value="{{ . }}">{{ . }}</option>
+                    {{ end }}
+                </select>
+                {{ end }}
+            </div>
+        </div>
+
+        <div class="status-wrap" style="margin-top:1rem;">
+            <div class="card">
+                <h3>Article generation requests</h3>
+                <p class="count" id="articleCount">{{ .Ongoing.ArticleRequests }}</p>
+                <p class="sub">Number of active full-article generation tasks</p>
+                <div class="progress" aria-hidden="true">
+                    <span id="articleBar" style="width:0%"></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Title generation requests</h3>
+                <p class="count" id="titleCount">{{ .Ongoing.TitleRequests }}</p>
+                <p class="sub">Number of active title-only tasks</p>
+                <div class="progress" aria-hidden="true">
+                    <span id="titleBar" style="width:0%"></span>
+                </div>
+            </div>
+
+            <div class="card total-card">
+                <div style="display:flex;flex-direction:column;">
+                    <h3>Total active AI requests</h3>
+                    <p class="count" id="totalCount">{{ .Ongoing.ArticleRequests .Ongoing.TitleRequests }}</p>
+                    <p class="sub">Combined active tasks across both categories</p>
+                </div>
+                <div style="min-width:220px;">
+                    <h3 style="margin-bottom:.5rem;">Breakdown</h3>
+                    <div style="display:flex;gap:.5rem;align-items:center;">
+                        <div style="flex:1">
+                            <div style="display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:.25rem;">
+                                <span>Articles</span><span id="articlePct">0%</span>
+                            </div>
+                            <div class="progress" aria-hidden="true">
+                                <span id="breakArticleBar" style="width:0%"></span>
+                            </div>
+                        </div>
+                        <div style="width:12px;height:12px;border-radius:3px;background:#007BFF"></div>
+                    </div>
+
+                    <div style="display:flex;gap:.5rem;align-items:center;margin-top:.6rem;">
+                        <div style="flex:1">
+                            <div style="display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:.25rem;">
+                                <span>Titles</span><span id="titlePct">0%</span>
+                            </div>
+                            <div class="progress" aria-hidden="true">
+                                <span id="breakTitleBar" style="width:0%"></span>
+                            </div>
+                        </div>
+                        <div style="width:12px;height:12px;border-radius:3px;background:#0056b3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const params = new URLSearchParams(window.location.search)
+        const select = document.getElementById('modelSelect')
+        if (select && params.get('model')) select.value = params.get('model')
+        if (select) {
+            select.addEventListener('change', () => {
+                params.set('model', select.value)
+                window.location.href = window.location.pathname + '?' + params.toString()
+            })
+        }
+
+        function clamp(n, a, b){ return Math.max(a, Math.min(b, n)) }
+
+        function updateDOM(data){
+            const article = Number(data.article || 0)
+            const title = Number(data.title || 0)
+            const total = article + title
+            document.getElementById('articleCount').textContent = article
+            document.getElementById('titleCount').textContent = title
+            document.getElementById('totalCount').textContent = total
+            const aPct = total === 0 ? 0 : Math.round((article/total)*100)
+            const tPct = total === 0 ? 0 : Math.round((title/total)*100)
+            document.getElementById('articlePct').textContent = aPct + '%'
+            document.getElementById('titlePct').textContent = tPct + '%'
+            document.getElementById('articleBar').style.width = clamp(aPct,0,100) + '%'
+            document.getElementById('titleBar').style.width = clamp(tPct,0,100) + '%'
+            document.getElementById('breakArticleBar').style.width = clamp(aPct,0,100) + '%'
+            document.getElementById('breakTitleBar').style.width = clamp(tPct,0,100) + '%'
+        }
+
+        const initial = {
+            article: Number('{{ .Ongoing.ArticleRequests }}'),
+            title: Number('{{ .Ongoing.TitleRequests }}')
+        }
+        updateDOM(initial)
+
+        async function fetchCounts(){
+            try{
+                const model = (select && select.value) || '{{ .Model }}'
+                const res = await fetch('/api/ai/requests?model=' + encodeURIComponent(model), { cache: 'no-store' })
+                if (!res.ok) throw new Error('network')
+                const json = await res.json()
+                updateDOM(json)
+            }catch(e){
+                return
+            }
+        }
+
+        setInterval(fetchCounts, 2000)
+    </script>
+</body>
+</html>
