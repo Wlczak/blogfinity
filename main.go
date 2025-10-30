@@ -71,6 +71,8 @@ func main() {
 	}
 	http.Handle("/", http.HandlerFunc(indexHandler))
 
+	http.Handle("/static/icon.png", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "static/icon.png") }))
+
 	http.Handle("/search", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { search.HandleSearch(w, r, queueTransport) }))
 
 	http.Handle("/article/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleArticle(w, r, queueTransport) }))
