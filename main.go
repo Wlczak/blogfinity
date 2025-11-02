@@ -62,7 +62,7 @@ func main() {
 	}
 	database.Migrate(db)
 
-	queueTransport := make(chan ai.AiQuery)
+	queueTransport := make(chan *ai.AiQuery)
 	var queue = ai.NewQueue()
 	go ai.HandleQueue(queueTransport, queue)
 

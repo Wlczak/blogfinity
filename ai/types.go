@@ -61,10 +61,10 @@ type ModelItem struct {
 
 type Queue struct {
 	mutex   *sync.Mutex
-	queries []AiQuery
+	queries []*AiQuery
 }
 
-func (q *Queue) Push(query AiQuery) {
+func (q *Queue) Push(query *AiQuery) {
 	q.mutex.Lock()
 
 	defer q.mutex.Unlock()
@@ -74,12 +74,12 @@ func (q *Queue) Push(query AiQuery) {
 	}
 }
 
-func (q *Queue) Pop() (AiQuery, bool) {
+func (q *Queue) Pop() (*AiQuery, bool) {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 
 	if len(q.queries) == 0 {
-		return AiQuery{}, false
+		return nil, false
 	} else {
 		query := q.queries[0]
 		q.queries = q.queries[1:]
@@ -87,10 +87,10 @@ func (q *Queue) Pop() (AiQuery, bool) {
 	}
 }
 
-func (q *Queue) Copy() []AiQuery {
+func (q *Queue) Copy() []*AiQuery {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
-	dst := make([]AiQuery, len(q.queries))
+	dst := make([]*AiQuery, len(q.queries))
 	copy(dst, q.queries)
 	return dst
 }
@@ -108,6 +108,7 @@ func (q *Queue) AddConn(conn *websocket.Conn, articleId int) {
 	go func(conn *websocket.Conn) {
 		time.Sleep(1 * time.Second)
 		err := conn.Close()
+		zap.Debug("closed connection in types")
 		if err != nil {
 			zap.Error(err.Error())
 		}

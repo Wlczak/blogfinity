@@ -21,11 +21,11 @@ import (
 func NewQueue() *Queue {
 	return &Queue{
 		mutex:   new(sync.Mutex),
-		queries: make([]AiQuery, 0),
+		queries: make([]*AiQuery, 0),
 	}
 }
 
-func HandleQueue(queryCh chan AiQuery, queue *Queue) {
+func HandleQueue(queryCh chan *AiQuery, queue *Queue) {
 	go CheckQueue(queue)
 	for {
 		query := <-queryCh
@@ -34,7 +34,7 @@ func HandleQueue(queryCh chan AiQuery, queue *Queue) {
 	}
 }
 
-func FilterModel(art AiQuery) string {
+func FilterModel(art *AiQuery) string {
 	models := GetModels()
 	if slices.Contains(models, art.Model) {
 		return art.Model
@@ -83,6 +83,11 @@ func CheckQueue(queue *Queue) {
 					article.Body = response.Text
 					article.Author = response.Model
 
+					for _, conn := range query.EventConns {
+						conn.WriteJSON(article)
+
+					}
+
 					article.Update(db)
 				}
 			}
@@ -90,6 +95,7 @@ func CheckQueue(queue *Queue) {
 				go func(conn *websocket.Conn) {
 					time.Sleep(1 * time.Second)
 					err := conn.Close()
+					zap.Debug("closed connection in queue handler")
 					if err != nil {
 						zap.Error(err.Error())
 					}

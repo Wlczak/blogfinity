@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery) {
+func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery) {
 	zap := logger.GetLogger()
 	type PageData struct {
 		Article models.Article
@@ -56,7 +56,7 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 		Model:     model,
 		RequestId: rid.String(),
 	}
-	queue <- aiQuery
+	queue <- &aiQuery
 
 	err = tmpl.Execute(w, PageData{
 		Article: article,

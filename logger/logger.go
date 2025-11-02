@@ -5,7 +5,7 @@ import "go.uber.org/zap"
 func GetLogger() zap.Logger {
 	cfg := zap.Config{
 		Encoding:         "json",
-		Level:            zap.NewAtomicLevelAt(zap.InfoLevel),
+		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
 		OutputPaths:      []string{"stdout", "logger/logs/app.log"},
 		ErrorOutputPaths: []string{"stderr"},
 		EncoderConfig:    zap.NewProductionEncoderConfig(),
