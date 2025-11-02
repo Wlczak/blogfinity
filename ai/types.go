@@ -96,6 +96,7 @@ func (q *Queue) Copy() []AiQuery {
 }
 
 func (q *Queue) AddConn(conn *websocket.Conn, articleId int) {
+	zap := logger.GetLogger()
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 	for _, v := range q.queries {
@@ -106,7 +107,10 @@ func (q *Queue) AddConn(conn *websocket.Conn, articleId int) {
 	}
 	go func(conn *websocket.Conn) {
 		time.Sleep(1 * time.Second)
-		conn.Close()
+		err := conn.Close()
+		if err != nil {
+			zap.Error(err.Error())
+		}
 	}(conn)
 }
 

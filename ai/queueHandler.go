@@ -89,7 +89,10 @@ func CheckQueue(queue *Queue) {
 			for _, conn := range query.EventConns {
 				go func(conn *websocket.Conn) {
 					time.Sleep(1 * time.Second)
-					conn.Close()
+					err := conn.Close()
+					if err != nil {
+						zap.Error(err.Error())
+					}
 				}(conn)
 			}
 		} else {
