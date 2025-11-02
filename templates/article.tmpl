@@ -89,10 +89,10 @@
     </header>
 
     <main>
-        <h1>{{ .Article.Title }}</h1>
-        <p class="meta">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author: {{ .Article.Author }}
+        <h1 id="title">{{ .Article.Title }}</h1>
+        <p class="meta" id="author">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author: {{ .Article.Author }}
         </p>
-        <div class="content">
+        <div class="content" id="body">
             {{ .Article.Body }}
         </div>
         <a href="/search?q={{ .Query }}&model={{ .Model }}" class="back-link">&larr; Back to search results</a>
@@ -114,6 +114,13 @@
         })
         eval("id =  + {{ .Article.ID }}")
         const ws = new WebSocket('/ws/article/' + id)
+        ws.onmessage = (event) => {
+            const article = JSON.parse(event.data)
+            document.getElementById('title')[0].innerText = article.title
+            document.title = article.title + ' – Blogfinity'
+            document.getElementById('author')[0].innerText = 'Published: ' + article.created_at + ' &bull; Author: ' + article.author
+            document.getElementById('body')[0].innerHTML = article.body
+        }
         
     </script>
 </body>
