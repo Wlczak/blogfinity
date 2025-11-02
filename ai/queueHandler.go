@@ -81,10 +81,14 @@ func CheckQueue(queue *Queue) {
 				if !article.HasBody(db) {
 					for _, conn := range query.EventConns {
 
-						conn.WriteJSON(ArticleWebsocketMsg{
+						err = conn.WriteJSON(ArticleWebsocketMsg{
 							Type: "status",
 							Data: "loading",
 						})
+
+						if err != nil {
+							zap.Error(err.Error())
+						}
 					}
 					response := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model)
 
