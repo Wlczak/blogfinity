@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ .Article.Title }} – Blogfinity</title>
     <style>
         body {
@@ -71,6 +71,80 @@
             margin: 0;
             font-size: .9rem;
         }
+
+        /* skeleton styles */
+        .skeleton {
+            background: linear-gradient(90deg, #e9e9e9 25%, #f7f7f7 50%, #e9e9e9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s linear infinite;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .skeleton-title {
+            width: 70%;
+            height: 28px;
+            margin: 0 0 12px 0;
+        }
+
+        .skeleton-meta {
+            width: 40%;
+            height: 14px;
+            margin-bottom: 18px;
+        }
+
+        .skeleton-line {
+            height: 12px;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .skeleton-line.long {
+            width: 90%;
+        }
+
+        .skeleton-paragraph {
+            margin-top: 8px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .ai-progress {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .ai-progress .ai-progress-track {
+            width: 180px;
+            height: 8px;
+            background: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .ai-progress .ai-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0, 123, 255, 0.9), rgba(0, 180, 255, 0.9));
+            width: 0%;
+            transition: width 200ms ease;
+        }
+
+        .ai-progress .ai-progress-text {
+            min-width: 36px;
+            text-align: right;
+            color: #555;
+        }
     </style>
 </head>
 
@@ -122,13 +196,60 @@
 
             titleElement.innerText = article.title
             bodyElement.innerHTML = article.body
-            authorElement.innerText = 'Published: ' + article.created_at + ' &bull; Author: ' + article.author
+            authorElement.innerText = 'Published: ' + article.created_at + ' • Author: ' + article.author
 
             document.title = article.title + ' – Blogfinity'
+            const p = document.getElementById('aiProgress')
+            if (p) p.remove()
         }
 
         function renderStatus(status) {
-
+            const titleElement = document.getElementById('title')
+            const bodyElement = document.getElementById('body')
+            const authorElement = document.getElementById('author')
+            if (!status) return
+            const phase = status.phase || status.state || status.status || status
+            if (phase === 'generating' || phase === 'loading' || phase === 'in_progress') {
+                titleElement.innerHTML = '<div class="skeleton skeleton-title"></div>'
+                authorElement.innerHTML = '<div class="skeleton skeleton-meta"></div>'
+                let lines = ''
+                const count = Math.max(3, Math.min(8, status.lines || 6))
+                for (let i = 0; i < count; i++) {
+                    lines += '<div class="skeleton skeleton-line' + (i % 3 === 0 ? ' long' : '') + '"></div>'
+                }
+                bodyElement.innerHTML = '<div class="skeleton-paragraph">' + lines + '</div>'
+                if (status.progress !== undefined) {
+                    const percent = Math.max(0, Math.min(100, Math.round(Number(status.progress))))
+                    let progressWrap = document.getElementById('aiProgress')
+                    if (!progressWrap) {
+                        progressWrap = document.createElement('div')
+                        progressWrap.id = 'aiProgress'
+                        progressWrap.className = 'ai-progress'
+                        const track = document.createElement('div')
+                        track.className = 'ai-progress-track'
+                        const bar = document.createElement('div')
+                        bar.className = 'ai-progress-bar'
+                        track.appendChild(bar)
+                        const text = document.createElement('div')
+                        text.className = 'ai-progress-text'
+                        progressWrap.appendChild(track)
+                        progressWrap.appendChild(text)
+                        bodyElement.insertAdjacentElement('afterend', progressWrap)
+                    }
+                    const barEl = progressWrap.querySelector('.ai-progress-bar')
+                    const textEl = progressWrap.querySelector('.ai-progress-text')
+                    if (barEl) barEl.style.width = percent + '%'
+                    if (textEl) textEl.innerText = percent + '%'
+                }
+            } else if (phase === 'failed' || phase === 'error') {
+                titleElement.innerText = '(generation failed)'
+                bodyElement.innerHTML = '<p style="color:#a00">An error occurred while generating the article.</p>'
+                const p = document.getElementById('aiProgress')
+                if (p) p.remove()
+            } else {
+                const p = document.getElementById('aiProgress')
+                if (p) p.remove()
+            }
         }
 
         const ws = new WebSocket('/ws/article/' + id)
@@ -142,7 +263,6 @@
                 }
             }
         }
-
     </script>
 </body>
 
