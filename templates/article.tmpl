@@ -31,7 +31,7 @@
         main {
             flex: 1;
             max-width: 800px;
-            margin: 2rem auto;
+            /* margin: 2rem auto; */
             background: #fff;
             padding: 2rem;
             border-radius: 6px;
@@ -78,33 +78,40 @@
             background-size: 200% 100%;
             animation: shimmer 1.2s linear infinite;
             border-radius: 4px;
-            display: inline-block;
+            display: block;
+            height: 1em;
         }
 
         .skeleton-title {
-            width: 70%;
-            height: 28px;
-            margin: 0 0 12px 0;
+            width: 100%;
+            height: 32px;
+            margin: 0 0 16px 0;
         }
 
         .skeleton-meta {
-            width: 40%;
-            height: 14px;
-            margin-bottom: 18px;
+            width: 60%;
+            height: 16px;
+            margin-bottom: 24px;
         }
 
         .skeleton-line {
-            height: 12px;
+            height: 14px;
             margin: 10px 0;
             width: 100%;
         }
 
         .skeleton-line.long {
-            width: 90%;
+            width: 95%;
+        }
+
+        .skeleton-line.short {
+            width: 75%;
         }
 
         .skeleton-paragraph {
-            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         @keyframes shimmer {
@@ -118,29 +125,29 @@
         }
 
         .ai-progress {
-            margin-top: 16px;
+            margin-top: 24px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
+            gap: 10px;
+            font-size: 0.9rem;
         }
 
-        .ai-progress .ai-progress-track {
-            width: 180px;
+        .ai-progress-track {
+            width: 200px;
             height: 8px;
             background: #eee;
             border-radius: 8px;
             overflow: hidden;
         }
 
-        .ai-progress .ai-progress-bar {
+        .ai-progress-bar {
             height: 100%;
             background: linear-gradient(90deg, rgba(0, 123, 255, 0.9), rgba(0, 180, 255, 0.9));
             width: 0%;
             transition: width 200ms ease;
         }
 
-        .ai-progress .ai-progress-text {
+        .ai-progress-text {
             min-width: 36px;
             text-align: right;
             color: #555;
@@ -174,9 +181,8 @@
     </main>
 
     <footer>
-        <p>&copy; {{ .Year }} Blogfinity. All rights reserved. <a style="color: white ;" href="/stats">Site
+        <p>&copy; {{ .Year }} Blogfinity. All rights reserved. <a style="color: white;" href="/stats">Site
                 statistics</a></p>
-
     </footer>
 
     <script>
@@ -209,15 +215,18 @@
             const authorElement = document.getElementById('author')
             if (!status) return
             const phase = status.phase || status.state || status.status || status
+
             if (phase === 'generating' || phase === 'loading' || phase === 'in_progress') {
                 titleElement.innerHTML = '<div class="skeleton skeleton-title"></div>'
                 authorElement.innerHTML = '<div class="skeleton skeleton-meta"></div>'
                 let lines = ''
-                const count = Math.max(3, Math.min(8, status.lines || 6))
+                const count = Math.max(6, Math.min(12, status.lines || 8))
                 for (let i = 0; i < count; i++) {
-                    lines += '<div class="skeleton skeleton-line' + (i % 3 === 0 ? ' long' : '') + '"></div>'
+                    const cls = i % 4 === 0 ? 'long' : i % 5 === 0 ? 'short' : ''
+                    lines += `<div class="skeleton skeleton-line ${cls}"></div>`
                 }
-                bodyElement.innerHTML = '<div class="skeleton-paragraph">' + lines + '</div>'
+                bodyElement.innerHTML = `<div class="skeleton-paragraph">${lines}</div>`
+
                 if (status.progress !== undefined) {
                     const percent = Math.max(0, Math.min(100, Math.round(Number(status.progress))))
                     let progressWrap = document.getElementById('aiProgress')
@@ -225,15 +234,11 @@
                         progressWrap = document.createElement('div')
                         progressWrap.id = 'aiProgress'
                         progressWrap.className = 'ai-progress'
-                        const track = document.createElement('div')
-                        track.className = 'ai-progress-track'
-                        const bar = document.createElement('div')
-                        bar.className = 'ai-progress-bar'
-                        track.appendChild(bar)
-                        const text = document.createElement('div')
-                        text.className = 'ai-progress-text'
-                        progressWrap.appendChild(track)
-                        progressWrap.appendChild(text)
+                        progressWrap.innerHTML = `
+                            <div class="ai-progress-track">
+                                <div class="ai-progress-bar"></div>
+                            </div>
+                            <div class="ai-progress-text"></div>`
                         bodyElement.insertAdjacentElement('afterend', progressWrap)
                     }
                     const barEl = progressWrap.querySelector('.ai-progress-bar')
@@ -251,7 +256,7 @@
                 if (p) p.remove()
             }
         }
-
+        // renderStatus("loading")
         const ws = new WebSocket('/ws/article/' + id)
         ws.onmessage = (event) => {
             const json = JSON.parse(event.data)
