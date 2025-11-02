@@ -67,6 +67,13 @@ func CheckQueue(queue *Queue) {
 
 			}
 			if query.Type == "body" {
+				for _, conn := range query.EventConns {
+
+					conn.WriteJSON(ArticleWebsocketMsg{
+						Type: "status",
+						Data: "loading",
+					})
+				}
 				prompt1 := " i need you to generate an article body based on this article title: “"
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long. Do not put the body into quotes."
 

@@ -134,3 +134,8 @@ type AiQuery struct {
 	RequestId  string
 	EventConns []*websocket.Conn
 }
+
+type ArticleWebsocketMsg struct {
+	Type string `json:"type"`
+	Data any    `json:"data"`
+}

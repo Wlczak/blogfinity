@@ -90,7 +90,8 @@
 
     <main>
         <h1 id="title">{{ .Article.Title }}</h1>
-        <p class="meta" id="author">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author: {{ .Article.Author }}
+        <p class="meta" id="author">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author:
+            {{ .Article.Author }}
         </p>
         <div class="content" id="body">
             {{ .Article.Body }}
@@ -113,26 +114,35 @@
             window.location.href = window.location.pathname + '?' + params.toString()
         })
         eval("id =  + {{ .Article.ID }}")
-        const ws = new WebSocket('/ws/article/' + id)
-        ws.onmessage = (event) => {
-            const article = JSON.parse(event.data)
+
+        function renderArticle(article) {
             const titleElement = document.getElementById('title')
             const bodyElement = document.getElementById('body')
             const authorElement = document.getElementById('author')
 
-            console.log(article)
-            console.log(titleElement)
-            console.log(bodyElement)
-            console.log(authorElement)
-
             titleElement.innerText = article.title
             bodyElement.innerHTML = article.body
             authorElement.innerText = 'Published: ' + article.created_at + ' &bull; Author: ' + article.author
-            
+
             document.title = article.title + ' – Blogfinity'
-            
         }
-        
+
+        function renderStatus(status) {
+
+        }
+
+        const ws = new WebSocket('/ws/article/' + id)
+        ws.onmessage = (event) => {
+            const json = JSON.parse(event.data)
+            if (json.id !== undefined) {
+                renderArticle(json)
+            } else {
+                if (json.type === 'status') {
+                    renderStatus(json.data)
+                }
+            }
+        }
+
     </script>
 </body>
 
