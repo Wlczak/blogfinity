@@ -11,6 +11,11 @@ import (
 func GetDB() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open("db/gorm.db"), &gorm.Config{})
 
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+	}
+
 	return db, err
 }
 

@@ -26,6 +26,7 @@ func HandleWsArticle(w http.ResponseWriter, r *http.Request, queue *ai.Queue) {
 	}
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
+		zap.Error(err.Error())
 		return
 	}
 	time.Sleep(500 * time.Millisecond)
