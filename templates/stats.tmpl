@@ -268,12 +268,12 @@
             const tPct = totalSlots === 0 ? 0 : Math.round((title / total) * 100)
             const aPctFromTotal = totalSlots === 0 ? 0 : Math.round((article / totalSlots) * 100)
             const tPctFromTotal = totalSlots === 0 ? 0 : Math.round((title / totalSlots) * 100)
-            document.getElementById('articlePct').textContent = aPct + '%'
-            document.getElementById('titlePct').textContent = tPct + '%'
+            document.getElementById('articlePct').textContent = aPct > 0 ? aPct + '%' : '0%'
+            document.getElementById('titlePct').textContent = tPct > 0 ? tPct + '%' : '0%'
             document.getElementById('articleBar').style.width = clamp(aPctFromTotal, 0, 100) + '%'
             document.getElementById('titleBar').style.width = clamp(tPctFromTotal, 0, 100) + '%'
-            document.getElementById('breakArticleBar').style.width = clamp(aPct, 0, 100) + '%'
-            document.getElementById('breakTitleBar').style.width = clamp(tPct, 0, 100) + '%'
+            document.getElementById('breakArticleBar').style.width = clamp(aPct > 0 ? aPct : 0, 0, 100) + '%'
+            document.getElementById('breakTitleBar').style.width = clamp(tPct > 0 ? tPct : 0, 0, 100) + '%'
         }
 
         const initial = {
