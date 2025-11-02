@@ -74,6 +74,17 @@ func (q *Queue) Push(query *AiQuery) {
 	}
 }
 
+func (q *Queue) Peek() (*AiQuery, bool) {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+
+	if len(q.queries) == 0 {
+		return nil, false
+	} else {
+		return q.queries[0], true
+	}
+}
+
 func (q *Queue) Pop() (*AiQuery, bool) {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()

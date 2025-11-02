@@ -46,7 +46,7 @@ func FilterModel(art *AiQuery) string {
 func CheckQueue(queue *Queue) {
 	zap := logger.GetLogger()
 	for {
-		query, ok := queue.Pop()
+		query, ok := queue.Peek()
 		if ok {
 			model := FilterModel(query)
 			if query.Type == "title" {
@@ -103,6 +103,7 @@ func CheckQueue(queue *Queue) {
 					}
 				}(conn)
 			}
+			queue.Pop()
 		} else {
 			time.Sleep(1 * time.Second)
 		}
