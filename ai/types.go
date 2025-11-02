@@ -99,9 +99,9 @@ func (q *Queue) AddConn(conn *websocket.Conn, articleId int) {
 	zap := logger.GetLogger()
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
-	for _, v := range q.queries {
-		if v.Article.ID == articleId {
-			v.EventConns = append(v.EventConns, conn)
+	for _, query := range q.queries {
+		if query.Article.ID == articleId {
+			query.EventConns = append(query.EventConns, conn)
 			return
 		}
 	}
