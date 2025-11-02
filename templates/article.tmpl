@@ -116,10 +116,21 @@
         const ws = new WebSocket('/ws/article/' + id)
         ws.onmessage = (event) => {
             const article = JSON.parse(event.data)
-            document.getElementById('title')[0].innerText = article.title
+            const titleElement = document.getElementById('title')
+            const bodyElement = document.getElementById('body')
+            const authorElement = document.getElementById('author')
+
+            console.log(article)
+            console.log(titleElement)
+            console.log(bodyElement)
+            console.log(authorElement)
+
+            titleElement.innerText = article.title
+            bodyElement.innerHTML = article.body
+            authorElement.innerText = 'Published: ' + article.created_at + ' &bull; Author: ' + article.author
+            
             document.title = article.title + ' – Blogfinity'
-            document.getElementById('author')[0].innerText = 'Published: ' + article.created_at + ' &bull; Author: ' + article.author
-            document.getElementById('body')[0].innerHTML = article.body
+            
         }
         
     </script>
