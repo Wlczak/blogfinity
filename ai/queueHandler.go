@@ -84,8 +84,10 @@ func CheckQueue(queue *Queue) {
 					article.Author = response.Model
 
 					for _, conn := range query.EventConns {
-						conn.WriteJSON(article)
-
+						err = conn.WriteJSON(article)
+						if err != nil {
+							zap.Error(err.Error())
+						}
 					}
 
 					article.Update(db)
