@@ -139,3 +139,11 @@ type ArticleWebsocketMsg struct {
 	Type string `json:"type"`
 	Data any    `json:"data"`
 }
+
+type GenerationResponse struct {
+	Model      string `json:"model"`
+	CreatedAt  string `json:"created_at"`
+	Response   string `json:"response"`
+	Done       bool   `json:"done"`
+	DoneReason string `json:"done_reason"`
+}

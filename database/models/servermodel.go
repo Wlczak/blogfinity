@@ -21,7 +21,7 @@ func GetServerCache(db *gorm.DB, host string, port string) Server {
 		server.Host = host
 		server.Port = port
 		server.Online = false
-		server.LastChecked = time.Now()
+		server.LastChecked = time.Now().Add(-5 * time.Minute)
 		db.Create(&server)
 	}
 	return server
