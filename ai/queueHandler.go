@@ -39,7 +39,7 @@ func FilterModel(art *AiQuery) string {
 	if slices.Contains(models, art.Model) {
 		return art.Model
 	} else {
-		return models[0]
+		return ""
 	}
 }
 
