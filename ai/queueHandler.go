@@ -82,6 +82,7 @@ func CheckQueue(queue *Queue) {
 
 				article := query.Article
 				if !article.HasBody(db) {
+					time.Sleep(1 * time.Second)
 					for _, conn := range query.EventConns {
 
 						err = conn.WriteJSON(ArticleWebsocketMsg{

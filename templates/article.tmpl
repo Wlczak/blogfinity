@@ -227,7 +227,7 @@
                     const cls = i % 4 === 0 ? 'long' : i % 5 === 0 ? 'short' : ''
                     lines += `<div class="skeleton skeleton-line ${cls}"></div>`
                 }
-                bodyElement.innerHTML = `<div class="skeleton-paragraph">${lines}</div>`
+                bodyElement.innerHTML = `<div class="skeleton-paragraph" id="skeleton-paragraph">${lines}</div>`
 
                 if (status.progress !== undefined) {
                     const percent = Math.max(0, Math.min(100, Math.round(Number(status.progress))))
@@ -258,6 +258,11 @@
                 if (p) p.remove()
             }
         }
+        function renderGeneration(generation) {
+            const p = document.getElementById('skeleton-paragraph')
+            if (p) p.remove()
+            document.getElementById('body').innerHTML += generation
+        }
         // renderStatus("loading")
         const ws = new WebSocket('/ws/article/' + id)
         ws.onmessage = (event) => {
@@ -267,21 +272,23 @@
             } else {
                 if (json.type === 'status') {
                     renderStatus(json.data)
+                } else if (json.type === 'generation') {
+                    renderGeneration(json.data)
                 }
             }
         }
         const originalContent = JSON.stringify(
-             {
+            {
                 "title": "{{ .Article.Title }}",
                 "body": "{{ .Article.Body }}",
                 "author": "{{ .Article.Author }}",
                 "created_at": "{{ .Article.CreatedAt }}",
                 "id": "{{ .Article.ID }}",
                 "status": "loading"
-             }
+            }
         )
         ws.onclose = (event) => {
-renderStatus(originalContent)
+            renderStatus(originalContent)
         }
     </script>
 </body>
