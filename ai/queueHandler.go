@@ -198,10 +198,13 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) PrompRes
 
 		scannedString += string(it.Response)
 		for _, conn := range eventConns {
-			conn.WriteJSON(ArticleWebsocketMsg{
+			err = conn.WriteJSON(ArticleWebsocketMsg{
 				Type: "generation",
 				Data: it.Response,
 			})
+			if err != nil {
+				zap.Error(err.Error())
+			}
 		}
 	}
 
