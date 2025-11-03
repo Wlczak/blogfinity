@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ .Article.Title }} – Blogfinity</title>
     <style>
         body {
@@ -71,6 +71,89 @@
             margin: 0;
             font-size: .9rem;
         }
+
+        /* skeleton styles */
+        .skeleton {
+            background: linear-gradient(90deg, #e9e9e9 25%, #f7f7f7 50%, #e9e9e9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s linear infinite;
+            border-radius: 4px;
+            display: block;
+            height: 1em;
+        }
+
+        .skeleton-title {
+            width: 100%;
+            height: 32px;
+            margin: 0 0 16px 0;
+        }
+
+        .skeleton-meta {
+            width: 60%;
+            height: 16px;
+            margin-bottom: 24px;
+        }
+
+        .skeleton-line {
+            height: 14px;
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        .skeleton-line.long {
+            width: 95%;
+        }
+
+        .skeleton-line.short {
+            width: 75%;
+        }
+
+        .skeleton-paragraph {
+            display: flex;
+            flex-direction: column;
+            width: 50vw;
+            max-width: 600px;
+            gap: 12px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .ai-progress {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .ai-progress-track {
+            width: 200px;
+            height: 8px;
+            background: #eee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .ai-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0, 123, 255, 0.9), rgba(0, 180, 255, 0.9));
+            width: 0%;
+            transition: width 200ms ease;
+        }
+
+        .ai-progress-text {
+            min-width: 36px;
+            text-align: right;
+            color: #555;
+        }
     </style>
 </head>
 
@@ -89,17 +172,19 @@
     </header>
 
     <main>
-        <h1>{{ .Article.Title }}</h1>
-        <p class="meta">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author: {{ .Article.Author }}
+        <h1 id="title">{{ .Article.Title }}</h1>
+        <p class="meta" id="author">Published: {{ .Article.CreatedAt.Format "Jan 2, 2006" }} &bull; Author:
+            {{ .Article.Author }}
         </p>
-        <div class="content">
+        <div class="content" id="body">
             {{ .Article.Body }}
         </div>
         <a href="/search?q={{ .Query }}&model={{ .Model }}" class="back-link">&larr; Back to search results</a>
     </main>
 
     <footer>
-        <p>&copy; {{ .Year }} Blogfinity. All rights reserved.</p>
+        <p>&copy; {{ .Year }} Blogfinity. All rights reserved. <a style="color: white;" href="/stats">Site
+                statistics</a></p>
     </footer>
 
     <script>
@@ -110,6 +195,81 @@
             params.set('model', select.value)
             window.location.href = window.location.pathname + '?' + params.toString()
         })
+        eval("id =  + {{ .Article.ID }}")
+
+        function renderArticle(article) {
+            const titleElement = document.getElementById('title')
+            const bodyElement = document.getElementById('body')
+            const authorElement = document.getElementById('author')
+
+            titleElement.innerText = article.title
+            bodyElement.innerHTML = article.body
+            authorElement.innerText = 'Published: ' + article.created_at + ' • Author: ' + article.author
+
+            document.title = article.title + ' – Blogfinity'
+            const p = document.getElementById('aiProgress')
+            if (p) p.remove()
+        }
+
+        function renderStatus(status) {
+            const titleElement = document.getElementById('title')
+            const bodyElement = document.getElementById('body')
+            const authorElement = document.getElementById('author')
+            if (!status) return
+            const phase = status.phase || status.state || status.status || status
+
+            if (phase === 'generating' || phase === 'loading' || phase === 'in_progress') {
+                titleElement.innerHTML = '<div class="skeleton skeleton-title"></div>'
+                authorElement.innerHTML = '<div class="skeleton skeleton-meta"></div>'
+                let lines = ''
+                const count = Math.max(6, Math.min(12, status.lines || 8))
+                for (let i = 0; i < count; i++) {
+                    const cls = i % 4 === 0 ? 'long' : i % 5 === 0 ? 'short' : ''
+                    lines += `<div class="skeleton skeleton-line ${cls}"></div>`
+                }
+                bodyElement.innerHTML = `<div class="skeleton-paragraph">${lines}</div>`
+
+                if (status.progress !== undefined) {
+                    const percent = Math.max(0, Math.min(100, Math.round(Number(status.progress))))
+                    let progressWrap = document.getElementById('aiProgress')
+                    if (!progressWrap) {
+                        progressWrap = document.createElement('div')
+                        progressWrap.id = 'aiProgress'
+                        progressWrap.className = 'ai-progress'
+                        progressWrap.innerHTML = `
+                            <div class="ai-progress-track">
+                                <div class="ai-progress-bar"></div>
+                            </div>
+                            <div class="ai-progress-text"></div>`
+                        bodyElement.insertAdjacentElement('afterend', progressWrap)
+                    }
+                    const barEl = progressWrap.querySelector('.ai-progress-bar')
+                    const textEl = progressWrap.querySelector('.ai-progress-text')
+                    if (barEl) barEl.style.width = percent + '%'
+                    if (textEl) textEl.innerText = percent + '%'
+                }
+            } else if (phase === 'failed' || phase === 'error') {
+                titleElement.innerText = '(generation failed)'
+                bodyElement.innerHTML = '<p style="color:#a00">An error occurred while generating the article.</p>'
+                const p = document.getElementById('aiProgress')
+                if (p) p.remove()
+            } else {
+                const p = document.getElementById('aiProgress')
+                if (p) p.remove()
+            }
+        }
+        // renderStatus("loading")
+        const ws = new WebSocket('/ws/article/' + id)
+        ws.onmessage = (event) => {
+            const json = JSON.parse(event.data)
+            if (json.id !== undefined) {
+                renderArticle(json)
+            } else {
+                if (json.type === 'status') {
+                    renderStatus(json.data)
+                }
+            }
+        }
     </script>
 </body>
 

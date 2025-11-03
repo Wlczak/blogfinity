@@ -15,16 +15,17 @@ import (
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
+	"github.com/gorilla/websocket"
 )
 
 func NewQueue() *Queue {
 	return &Queue{
 		mutex:   new(sync.Mutex),
-		queries: make([]AiQuery, 0),
+		queries: make([]*AiQuery, 0),
 	}
 }
 
-func HandleQueue(queryCh chan AiQuery, queue *Queue) {
+func HandleQueue(queryCh chan *AiQuery, queue *Queue) {
 	go CheckQueue(queue)
 	for {
 		query := <-queryCh
@@ -33,19 +34,19 @@ func HandleQueue(queryCh chan AiQuery, queue *Queue) {
 	}
 }
 
-func FilterModel(art AiQuery) string {
+func FilterModel(art *AiQuery) string {
 	models := GetModels()
 	if slices.Contains(models, art.Model) {
 		return art.Model
 	} else {
-		return models[0]
+		return ""
 	}
 }
 
 func CheckQueue(queue *Queue) {
 	zap := logger.GetLogger()
 	for {
-		query, ok := queue.Pop()
+		query, ok := queue.Peek()
 		if ok {
 			model := FilterModel(query)
 			if query.Type == "title" {
@@ -63,8 +64,10 @@ func CheckQueue(queue *Queue) {
 				}
 
 				article.Create(db)
+
 			}
 			if query.Type == "body" {
+
 				prompt1 := " i need you to generate an article body based on this article title: “"
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long. Do not put the body into quotes."
 
@@ -76,14 +79,43 @@ func CheckQueue(queue *Queue) {
 
 				article := query.Article
 				if !article.HasBody(db) {
+					for _, conn := range query.EventConns {
+
+						err = conn.WriteJSON(ArticleWebsocketMsg{
+							Type: "status",
+							Data: "loading",
+						})
+
+						if err != nil {
+							zap.Error(err.Error())
+						}
+					}
 					response := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model)
 
 					article.Body = response.Text
 					article.Author = response.Model
 
+					for _, conn := range query.EventConns {
+						err = conn.WriteJSON(article)
+						if err != nil {
+							zap.Error(err.Error())
+						}
+					}
+
 					article.Update(db)
 				}
 			}
+			for _, conn := range query.EventConns {
+				go func(conn *websocket.Conn) {
+					time.Sleep(1 * time.Second)
+					err := conn.Close()
+					zap.Debug("closed connection in queue handler")
+					if err != nil {
+						zap.Error(err.Error())
+					}
+				}(conn)
+			}
+			queue.Pop()
 		} else {
 			time.Sleep(1 * time.Second)
 		}

@@ -11,9 +11,10 @@ import (
 	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
+	"github.com/google/uuid"
 )
 
-func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery) {
+func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery) {
 	zap := logger.GetLogger()
 	type PageData struct {
 		Article models.Article
@@ -46,13 +47,16 @@ func HandleArticle(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery
 
 	article := models.GetArticleById(db, articleIdInt)
 
+	rid := uuid.New()
+
 	aiQuery := ai.AiQuery{
-		Query:   article.Title,
-		Type:    "body",
-		Article: article,
-		Model:   model,
+		Query:     article.Title,
+		Type:      "body",
+		Article:   article,
+		Model:     model,
+		RequestId: rid.String(),
 	}
-	queue <- aiQuery
+	queue <- &aiQuery
 
 	err = tmpl.Execute(w, PageData{
 		Article: article,

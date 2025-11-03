@@ -12,7 +12,7 @@ import (
 	"github.com/lithammer/fuzzysearch/fuzzy"
 )
 
-func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery) {
+func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery) {
 	zap := logger.GetLogger()
 
 	type PageData struct {
@@ -50,7 +50,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan ai.AiQuery)
 				Model:   model,
 			}
 			if ai.IsServerOnline() {
-				queue <- aiQuery
+				queue <- &aiQuery
 			}
 		}
 	}
