@@ -34,12 +34,12 @@ func HandleQueue(queryCh chan *AiQuery, queue *Queue) {
 	}
 }
 
-func FilterModel(art *AiQuery) string {
+func FilterModel(art *AiQuery) (string, bool) {
 	models := GetModels()
 	if slices.Contains(models, art.Model) {
-		return art.Model
+		return art.Model, true
 	} else {
-		return ""
+		return "", false
 	}
 }
 
@@ -48,7 +48,11 @@ func CheckQueue(queue *Queue) {
 	for {
 		query, ok := queue.Peek()
 		if ok {
-			model := FilterModel(query)
+			model, ok := FilterModel(query)
+			if !ok {
+				queue.Pop()
+				continue
+			}
 			if query.Type == "title" {
 				prompt1 := " i need you to generate an article title based on this search prompt: “"
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes."
