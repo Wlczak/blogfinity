@@ -270,6 +270,19 @@
                 }
             }
         }
+        const originalContent = JSON.stringify(
+             {
+                "title": "{{ .Article.Title }}",
+                "body": "{{ .Article.Body }}",
+                "author": "{{ .Article.Author }}",
+                "created_at": "{{ .Article.CreatedAt }}",
+                "id": "{{ .Article.ID }}",
+                "status": "loading"
+             }
+        )
+        ws.onclose = (event) => {
+renderStatus(originalContent)
+        }
     </script>
 </body>
 
