@@ -55,7 +55,9 @@ func main() {
 	if err != nil {
 		err := godotenv.Load("./conf/.env")
 
-		zap.Error(err.Error())
+		if err != nil {
+			zap.Error(err.Error())
+		}
 	}
 
 	db, err := database.GetDB()
