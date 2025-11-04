@@ -53,6 +53,8 @@ func main() {
 
 	err := godotenv.Load(".env")
 	if err != nil {
+		err := godotenv.Load("./conf/.env")
+
 		zap.Error(err.Error())
 	}
 
