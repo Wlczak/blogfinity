@@ -1,0 +1,25 @@
+services:
+    blogfinity:
+        build:
+            context: ../
+            dockerfile: Dockerfile
+        volumes:
+            # - ./:/app # For local development
+            - ../db/:/app/db/
+            - ../logger/logs/:/app/logger/logs/
+            - ../:/app/conf/
+        working_dir: /app
+        restart: always
+        env_file:
+            - ../.env
+        extra_hosts:
+            - "ollama-server:${OLLAMA_SERVER_IP}"
+        ports:
+            - "1111:8080"
+        command: ./blogfinity
+        networks:
+            - blogfinity-net
+
+networks:
+    blogfinity-net:
+        name: blogfinity-net
