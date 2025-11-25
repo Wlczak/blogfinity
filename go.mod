@@ -1,6 +1,6 @@
 module github.com/Wlczak/blogfinity
 
-go 1.25.3
+go 1.25.4
 
 require (
 	github.com/glebarez/sqlite v1.11.0
