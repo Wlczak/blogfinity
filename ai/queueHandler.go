@@ -166,7 +166,7 @@ type PrompResult struct {
 
 func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompResult, error) {
 	zap := logger.GetLogger()
-	ctx := context.Background()
+	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
 	// deepseek-r1:8b
 	// deepseek-r1:1.5b-qwen-distill-q4_K_M
 	// gemma3:1b
@@ -303,8 +303,6 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 		zap.Error(err.Error())
 		return PrompResult{Text: "error", Model: model}, err
 	}
-
-	fmt.Println("Cleaned response:", output)
 
 	return PrompResult{Text: output.Output, Model: model}, nil
 }
