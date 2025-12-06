@@ -7,8 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -187,6 +189,8 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	request, err := http.NewRequestWithContext(ctx, "POST", "http://"+serverUrl+":11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
 
+	fmt.Printf("request.Body: %v\n", request.Body)
+
 	if err != nil {
 		zap.Error(err.Error())
 	}
@@ -203,8 +207,17 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	}()
 
 	if response.StatusCode != http.StatusOK {
-		zap.Error("non-200 response from ollama server")
-		return PrompResult{Text: "error", Model: model}, errors.New("non-200 response from ollama server")
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			zap.Error(err.Error())
+			err = errors.New("response returned status code: " + strconv.Itoa(response.StatusCode))
+
+		} else {
+			err = errors.New("response returned status code: " + strconv.Itoa(response.StatusCode) + "Body: " + string(body))
+		}
+
+		zap.Error(err.Error())
+		return PrompResult{Text: "error", Model: model}, err
 	}
 
 	scanner := bufio.NewScanner(response.Body)
@@ -237,7 +250,7 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	if err := scanner.Err(); err != nil {
 		zap.Error(err.Error())
 	}
-
+	output := scannedString
 	// raw := string(body)
 
 	// fmt.Println(raw)
@@ -263,11 +276,10 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	// // drop or replace any invalid UTF-8 sequences
 	// cleanResp = bytes.ToValidUTF8(cleanResp, nil)
 
-	// output := strings.Trim(string(cleanResp), `"`)
+	output = strings.Trim(string(output), `"`)
 
 	// output = strings.TrimSpace(output)
 
-	output := scannedString
 	fmt.Println("Cleaned response:", output)
 
 	return PrompResult{Text: output, Model: model}, nil
