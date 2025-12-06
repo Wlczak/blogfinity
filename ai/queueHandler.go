@@ -304,5 +304,7 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 		return PrompResult{Text: "error", Model: model}, err
 	}
 
+	fmt.Println("response: " + output.Output)
+
 	return PrompResult{Text: output.Output, Model: model}, nil
 }
