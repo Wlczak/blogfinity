@@ -49,19 +49,21 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery
 				Article: models.Article{},
 				Model:   model,
 			}
-			if ai.IsServerOnline() {
+			_, serverStatus := ai.GetOllamaServer()
+			if serverStatus {
 				queue <- &aiQuery
 			}
 		}
 	}
 	// fmt.Println(model)
+	_, serverStatus := ai.GetOllamaServer()
 	err = tmpl.Execute(w, PageData{
 		Query:        query,
 		Year:         time.Now().Year(),
 		Results:      searchResults,
 		Models:       ai.GetModels(),
 		Model:        model,
-		ServerOnline: ai.IsServerOnline(),
+		ServerOnline: serverStatus,
 	})
 
 	if err != nil {

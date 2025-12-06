@@ -35,11 +35,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	tmpl := template.Must(tmplf, err)
 
+	_, serverStatus := ai.GetOllamaServer()
 	data := PageData{
 		Year:         time.Now().Year(),
 		Models:       ai.GetModels(),
 		Model:        model,
-		ServerOnline: ai.IsServerOnline(),
+		ServerOnline: serverStatus,
 	}
 	err = tmpl.Execute(w, data)
 

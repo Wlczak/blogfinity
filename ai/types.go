@@ -20,8 +20,9 @@ const (
 
 func GetModels() []string {
 	zap := logger.GetLogger()
-	if IsServerOnline() {
-		resp, err := http.Get("http://ollama-server:11434/api/tags")
+	serverUrl, serverOnline := GetOllamaServer()
+	if serverOnline {
+		resp, err := http.Get(serverUrl + "/api/tags")
 		if err != nil {
 			zap.Error(err.Error())
 		}

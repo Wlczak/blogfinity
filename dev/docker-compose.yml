@@ -12,8 +12,8 @@ services:
         restart: always
         env_file:
             - ../.env
-        extra_hosts:
-            - "ollama-server:${OLLAMA_SERVER_IP}"
+        environment:
+            - OLLAMA_SERVER_IPS=${OLLAMA_SERVER_IPS}
         ports:
             - "1111:8080"
         command: ./blogfinity
