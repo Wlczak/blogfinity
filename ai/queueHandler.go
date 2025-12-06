@@ -179,13 +179,12 @@ func PromptAi(serverUrl string, query string, model string, eventConns []*websoc
 	// llama3.1:8b
 	// smollm:135m
 
-	fmt.Println("Prompting:" + serverUrl)
 	serverUrl, serverOnline := GetOllamaServer()
 	if !serverOnline {
 		zap.Error("No Ollama server available")
 		return PrompResult{Text: "error", Model: model}
 	}
-	// fmt.Println("Prompting AI with query: " + query)
+	fmt.Println("Prompting AI with query: " + query)
 	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
 		"prompt":"` + query + `","stream":true}`)
 
@@ -272,9 +271,8 @@ func PromptAi(serverUrl string, query string, model string, eventConns []*websoc
 
 	// output = strings.TrimSpace(output)
 
-	// // fmt.Println("Cleaned response:", output)
 	output := scannedString
+	fmt.Println("Cleaned response:", output)
 
 	return PrompResult{Text: output, Model: model}
-
 }
