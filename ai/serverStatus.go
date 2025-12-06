@@ -48,7 +48,7 @@ func UpdateServerStatus(db *gorm.DB, server *models.Server) {
 
 	data, err := http.Get("http://" + server.Host + ":" + server.Port)
 	if err != nil {
-		zap.Error(err.Error())
+		zap.Warn(err.Error())
 		server.Online = false
 		server.LastChecked = time.Now()
 		server.Update(db)
