@@ -68,6 +68,12 @@ func CheckQueue(queue *Queue) {
 
 				response, err := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model, query.EventConns)
 
+				if err != nil {
+					zap.Error(err.Error())
+					queue.Pop()
+					continue
+				}
+
 				article := models.Article{Title: response.Text, Body: "", Author: response.Model}
 
 				db, err := database.GetDB()
@@ -105,6 +111,10 @@ func CheckQueue(queue *Queue) {
 						}
 					}
 					response, err := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model, query.EventConns)
+
+					if err != nil {
+						zap.Error(err.Error())
+					}
 
 					article.Body = response.Text
 					article.Author = response.Model
@@ -167,7 +177,7 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	serverUrl, serverOnline := GetOllamaServer()
 	if !serverOnline {
 		zap.Error("No Ollama server available")
-		return PrompResult{Text: "error", Model: model}, errors.New("No Ollama server available")
+		return PrompResult{Text: "error", Model: model}, errors.New("no ollama server available")
 	}
 	fmt.Println("Prompting AI with query: " + query)
 	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
