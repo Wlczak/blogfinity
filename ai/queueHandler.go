@@ -180,11 +180,16 @@ func PromptAi(serverUrl string, query string, model string, eventConns []*websoc
 	// smollm:135m
 
 	fmt.Println("Prompting:" + serverUrl)
+	serverUrl, serverOnline := GetOllamaServer()
+	if !serverOnline {
+		zap.Error("No Ollama server available")
+		return PrompResult{Text: "error", Model: model}
+	}
 	// fmt.Println("Prompting AI with query: " + query)
 	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
 		"prompt":"` + query + `","stream":true}`)
 
-	request, err := http.NewRequestWithContext(ctx, "POST", "/api/generate", bytes.NewBuffer(requestJson))
+	request, err := http.NewRequestWithContext(ctx, "POST", serverUrl+"/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
