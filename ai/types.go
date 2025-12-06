@@ -23,7 +23,7 @@ func GetModels() []string {
 	zap := logger.GetLogger()
 	serverUrl, serverOnline := GetOllamaServer()
 	if serverOnline {
-		resp, err := http.Get(serverUrl + "/api/tags")
+		resp, err := http.Get("http://" + serverUrl + ":11434/api/tags")
 		if err != nil {
 			zap.Error(err.Error())
 			db, err := database.GetDB()
