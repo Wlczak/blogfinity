@@ -166,7 +166,8 @@ type PrompResult struct {
 
 func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompResult, error) {
 	zap := logger.GetLogger()
-	ctx, _ := context.WithTimeout(context.Background(), time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
 	// deepseek-r1:8b
 	// deepseek-r1:1.5b-qwen-distill-q4_K_M
 	// gemma3:1b
