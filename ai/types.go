@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/gorilla/websocket"
@@ -25,6 +26,14 @@ func GetModels() []string {
 		resp, err := http.Get(serverUrl + "/api/tags")
 		if err != nil {
 			zap.Error(err.Error())
+			db, err := database.GetDB()
+			if err != nil {
+				zap.Error(err.Error())
+				return []string{}
+			}
+			serverCache := models.GetServerCache(db, serverUrl, "11434")
+			UpdateServerStatus(db, &serverCache)
+			return []string{}
 		}
 		var body []byte
 		body, err = io.ReadAll(resp.Body)

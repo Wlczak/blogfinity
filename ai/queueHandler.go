@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
@@ -57,7 +58,7 @@ func CheckQueue(queue *Queue) {
 				prompt1 := " i need you to generate an article title based on this search prompt: “"
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. It must also be searchable with fuzzy search. Meaning it has to be similar to the search prompt, thogh it doesnt have to have the same exact words every time. Please output only the title and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the title is around 5-15 words long. Do not put the title into quotes."
 
-				serverUrl, serverStatus := GetOllamaServer()
+				_, serverStatus := GetOllamaServer()
 
 				if !serverStatus {
 					zap.Error("No Ollama server available")
@@ -65,7 +66,7 @@ func CheckQueue(queue *Queue) {
 					continue
 				}
 
-				response := PromptAi(serverUrl, prompt1+strings.Trim(query.Query, `"`)+prompt2, model, query.EventConns)
+				response, err := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model, query.EventConns)
 
 				article := models.Article{Title: response.Text, Body: "", Author: response.Model}
 
@@ -103,23 +104,7 @@ func CheckQueue(queue *Queue) {
 							zap.Error(err.Error())
 						}
 					}
-					serverUrl, serverStatus := GetOllamaServer()
-
-					if !serverStatus {
-						for _, conn := range query.EventConns {
-							err = conn.WriteJSON(ArticleWebsocketMsg{
-								Type: "status",
-								Data: "no server",
-							})
-							if err != nil {
-								zap.Error(err.Error())
-							}
-						}
-						queue.Pop()
-						continue
-					}
-
-					response := PromptAi(serverUrl, prompt1+strings.Trim(query.Query, `"`)+prompt2, model, query.EventConns)
+					response, err := PromptAi(prompt1+strings.Trim(query.Query, `"`)+prompt2, model, query.EventConns)
 
 					article.Body = response.Text
 					article.Author = response.Model
@@ -166,7 +151,7 @@ type PrompResult struct {
 	Model string
 }
 
-func PromptAi(serverUrl string, query string, model string, eventConns []*websocket.Conn) PrompResult {
+func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompResult, error) {
 	zap := logger.GetLogger()
 	ctx := context.Background()
 	// deepseek-r1:8b
@@ -182,7 +167,7 @@ func PromptAi(serverUrl string, query string, model string, eventConns []*websoc
 	serverUrl, serverOnline := GetOllamaServer()
 	if !serverOnline {
 		zap.Error("No Ollama server available")
-		return PrompResult{Text: "error", Model: model}
+		return PrompResult{Text: "error", Model: model}, errors.New("No Ollama server available")
 	}
 	fmt.Println("Prompting AI with query: " + query)
 	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
@@ -208,7 +193,7 @@ func PromptAi(serverUrl string, query string, model string, eventConns []*websoc
 
 	if response.StatusCode != http.StatusOK {
 		zap.Error("non-200 response from ollama server")
-		return PrompResult{Text: "error", Model: model}
+		return PrompResult{Text: "error", Model: model}, errors.New("non-200 response from ollama server")
 	}
 
 	scanner := bufio.NewScanner(response.Body)
@@ -274,5 +259,5 @@ func PromptAi(serverUrl string, query string, model string, eventConns []*websoc
 	output := scannedString
 	fmt.Println("Cleaned response:", output)
 
-	return PrompResult{Text: output, Model: model}
+	return PrompResult{Text: output, Model: model}, nil
 }
