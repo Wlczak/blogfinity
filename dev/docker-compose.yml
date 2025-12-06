@@ -1,13 +1,13 @@
 services:
     blogfinity:
         build:
-            context: ../
+            context: .
             dockerfile: Dockerfile
         volumes:
-            # - ./:/app # For local development
-            - ../db/:/app/db/
-            - ../logger/logs/:/app/logger/logs/
-            - ../:/app/conf/
+            - ../:/app # For local development
+            # - ../db/:/app/db/
+            # - ../logger/logs/:/app/logger/logs/
+            # - ../:/app/conf/
         working_dir: /app
         restart: always
         env_file:
@@ -16,7 +16,7 @@ services:
             - OLLAMA_SERVER_IPS=${OLLAMA_SERVER_IPS}
         ports:
             - "1111:8080"
-        command: ./blogfinity
+        command: go run .
         networks:
             - blogfinity-net
 

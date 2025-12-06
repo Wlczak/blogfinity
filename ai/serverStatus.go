@@ -29,12 +29,12 @@ func GetOllamaServer() (url string, success bool) {
 
 	serverSlice := strings.Split(servers, ";")
 
-	for _, server := range serverSlice {
-		serverCache := models.GetServerCache(db, server, "11434")
+	for _, serverUrl := range serverSlice {
+		serverCache := models.GetServerCache(db, serverUrl, "11434")
 		if serverCache.Online {
 			return "http://" + serverCache.Host + ":" + serverCache.Port, true
 		}
-		if serverCache.LastChecked.Add(5 * time.Minute).Before(time.Now()) {
+		if serverCache.LastChecked.Add(5*time.Minute).Before(time.Now()) && !serverCache.Online {
 			// fmCt.Println("Updating server status")
 			go UpdateServerStatus(db, &serverCache)
 		}
@@ -46,7 +46,7 @@ func GetOllamaServer() (url string, success bool) {
 func UpdateServerStatus(db *gorm.DB, server *models.Server) {
 	zap := logger.GetLogger()
 
-	data, err := http.Get("http://" + server.Host + ":" + server.Port + "/")
+	data, err := http.Get("http://" + server.Host + ":" + server.Port)
 	if err != nil {
 		zap.Error(err.Error())
 		server.Online = false
