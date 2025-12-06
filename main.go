@@ -93,6 +93,11 @@ func main() {
 
 	http.Handle("/sitemap.xml", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleSitemap(w, r) }))
 
+	http.Handle("/robots.txt", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(""))
+		w.Header().Add("Content-Type", "text/plain")
+	}))
+
 	fmt.Println("Listening on ", address)
 
 	err = http.Serve(listener, nil)
