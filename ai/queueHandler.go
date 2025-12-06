@@ -297,7 +297,12 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	}
 	output := AiPromtResult{}
 
-	json.Unmarshal([]byte(scannedString), &output)
+	err = json.Unmarshal([]byte(scannedString), &output)
+
+	if err != nil {
+		zap.Error(err.Error())
+		return PrompResult{Text: "error", Model: model}, err
+	}
 
 	fmt.Println("Cleaned response:", output)
 
