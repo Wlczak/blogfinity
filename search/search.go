@@ -30,7 +30,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery
 	model := r.URL.Query().Get("model")
 	aiModels := ai.GetModels()
 
-	if slices.Contains(aiModels, model) == false {
+	if !slices.Contains(aiModels, model) {
 		redirectUrl := os.Getenv("BASE_DOMAIN") + "/search?q=" + query + "&model=" + aiModels[0]
 		http.Redirect(w, r, redirectUrl, http.StatusFound)
 		return
