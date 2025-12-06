@@ -183,13 +183,28 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 		return PrompResult{Text: "error", Model: model}, errors.New("no ollama server available")
 	}
 	fmt.Println("Prompting AI with query: " + query)
-	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
-		"prompt":"` + query + `","stream":true}`)
+	requestJson := []byte(`{
+							  "model": "` + model + `",
+							  "options": {
+							    "temperature": 0.6
+							  },
+							  "prompt": "` + query + `",
+							  "stream": true,
+							  "format": {
+							    "type": "object",
+							    "properties": {
+							      "output": {
+							        "type": "string"
+							      }
+							    },
+							    "required": [
+							      "output"
+							    ]
+							  }
+							}`)
 
 	request, err := http.NewRequestWithContext(ctx, "POST", "http://"+serverUrl+":11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
-
-	fmt.Printf("request.Body: %v\n", request.Body)
 
 	if err != nil {
 		zap.Error(err.Error())
@@ -250,7 +265,6 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	if err := scanner.Err(); err != nil {
 		zap.Error(err.Error())
 	}
-	output := scannedString
 	// raw := string(body)
 
 	// fmt.Println(raw)
@@ -276,11 +290,16 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	// // drop or replace any invalid UTF-8 sequences
 	// cleanResp = bytes.ToValidUTF8(cleanResp, nil)
 
-	output = strings.Trim(string(output), `"`)
-
 	// output = strings.TrimSpace(output)
+
+	type AiPromtResult struct {
+		Output string `json:"output"`
+	}
+	output := AiPromtResult{}
+
+	json.Unmarshal([]byte(scannedString), &output)
 
 	fmt.Println("Cleaned response:", output)
 
-	return PrompResult{Text: output, Model: model}, nil
+	return PrompResult{Text: output.Output, Model: model}, nil
 }
