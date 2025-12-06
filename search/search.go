@@ -3,6 +3,8 @@ package search
 import (
 	"html/template"
 	"net/http"
+	"os"
+	"slices"
 	"time"
 
 	"github.com/Wlczak/blogfinity/ai"
@@ -26,6 +28,13 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery
 
 	query := r.URL.Query().Get("q")
 	model := r.URL.Query().Get("model")
+	aiModels := ai.GetModels()
+
+	if slices.Contains(aiModels, model) == false {
+		redirectUrl := os.Getenv("BASE_DOMAIN") + "/search?q=" + query + "&model=" + aiModels[0]
+		http.Redirect(w, r, redirectUrl, http.StatusFound)
+		return
+	}
 
 	tmplf, err := template.ParseFiles("templates/search.tmpl")
 	if err != nil {
@@ -61,7 +70,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery
 		Query:        query,
 		Year:         time.Now().Year(),
 		Results:      searchResults,
-		Models:       ai.GetModels(),
+		Models:       aiModels,
 		Model:        model,
 		ServerOnline: serverStatus,
 	})

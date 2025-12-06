@@ -114,6 +114,7 @@ func CheckQueue(queue *Queue) {
 
 					if err != nil {
 						zap.Error(err.Error())
+						return
 					}
 
 					article.Body = response.Text
@@ -183,7 +184,7 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 	requestJson := []byte(`{"model":"` + model + `", "options": {"temperature": 0.6},
 		"prompt":"` + query + `","stream":true}`)
 
-	request, err := http.NewRequestWithContext(ctx, "POST", serverUrl+"/api/generate", bytes.NewBuffer(requestJson))
+	request, err := http.NewRequestWithContext(ctx, "POST", "http://"+serverUrl+":11434/api/generate", bytes.NewBuffer(requestJson))
 	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
