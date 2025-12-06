@@ -94,7 +94,11 @@ func main() {
 	http.Handle("/sitemap.xml", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { articles.HandleSitemap(w, r) }))
 
 	http.Handle("/robots.txt", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(""))
+		_, err := w.Write([]byte(""))
+		if err != nil {
+			zap.Error(err.Error())
+			return
+		}
 		w.Header().Add("Content-Type", "text/plain")
 	}))
 
