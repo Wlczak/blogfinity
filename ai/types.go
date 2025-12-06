@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/gorilla/websocket"
@@ -20,10 +21,19 @@ const (
 
 func GetModels() []string {
 	zap := logger.GetLogger()
-	if IsServerOnline() {
-		resp, err := http.Get("http://ollama-server:11434/api/tags")
+	serverUrl, serverOnline := GetOllamaServer()
+	if serverOnline {
+		resp, err := http.Get("http://" + serverUrl + ":11434/api/tags")
 		if err != nil {
 			zap.Error(err.Error())
+			db, err := database.GetDB()
+			if err != nil {
+				zap.Error(err.Error())
+				return []string{}
+			}
+			serverCache := models.GetServerCache(db, serverUrl, "11434")
+			UpdateServerStatus(db, &serverCache)
+			return []string{}
 		}
 		var body []byte
 		body, err = io.ReadAll(resp.Body)

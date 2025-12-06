@@ -3,6 +3,8 @@ package ai
 import (
 	"io"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/Wlczak/blogfinity/database"
@@ -11,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func IsServerOnline() bool {
+func GetOllamaServer() (url string, success bool) {
 	zap := logger.GetLogger()
 
 	db, err := database.GetDB()
@@ -19,20 +21,34 @@ func IsServerOnline() bool {
 		zap.Error(err.Error())
 	}
 
-	server := models.GetServerCache(db, "ollama-server", "11434")
-	if server.LastChecked.Add(5 * time.Minute).Before(time.Now()) {
-		// fmt.Println("Updating server status")
-		go UpdateServerStatus(db, &server)
+	if db == nil {
+		return "", false
 	}
-	return server.Online
+
+	servers := os.Getenv("OLLAMA_SERVER_IPS")
+
+	serverSlice := strings.Split(servers, ";")
+
+	for _, serverUrl := range serverSlice {
+		serverCache := models.GetServerCache(db, serverUrl, "11434")
+		if serverCache.Online {
+			return serverCache.Host, true
+		}
+		if serverCache.LastChecked.Add(5*time.Minute).Before(time.Now()) && !serverCache.Online {
+			// fmCt.Println("Updating server status")
+			go UpdateServerStatus(db, &serverCache)
+		}
+	}
+
+	return "", false
 }
 
 func UpdateServerStatus(db *gorm.DB, server *models.Server) {
 	zap := logger.GetLogger()
 
-	data, err := http.Get("http://" + server.Host + ":" + server.Port + "/")
+	data, err := http.Get("http://" + server.Host + ":" + server.Port)
 	if err != nil {
-		zap.Error(err.Error())
+		zap.Warn(err.Error())
 		server.Online = false
 		server.LastChecked = time.Now()
 		server.Update(db)

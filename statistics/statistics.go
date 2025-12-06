@@ -38,11 +38,12 @@ func HandleStats(w http.ResponseWriter, r *http.Request, queue *ai.Queue) {
 
 	model := r.URL.Query().Get("model")
 
+	_, serverStatus := ai.GetOllamaServer()
 	err = tmpl.Execute(w, PageData{
 		Year:         time.Now().Year(),
 		Models:       ai.GetModels(),
 		Model:        model,
-		ServerOnline: ai.IsServerOnline(),
+		ServerOnline: serverStatus,
 		TotalSlots:   ai.MaxAiQueueSize,
 		Ongoing: Ongoing{
 			ArticleRequests: articleCount,
