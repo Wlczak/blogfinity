@@ -91,12 +91,39 @@ func search(query string) []models.Article {
 
 	// rankedSemanticVectorSearch(query)
 	// return rankedFuzzySearch(articles, query)
-	return []models.Article{}
+	return []models.Article{
+		models.Article{Title: "test", Body: "test"},
+		models.Article{Title: "test2", Body: "test2"},
+		models.Article{Title: "test3", Body: "test3"},
+		models.Article{Title: "test4", Body: "test4"},
+		models.Article{Title: "test5", Body: "test5"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+		models.Article{Title: "test6", Body: "test6"},
+	}
 }
 
 func rankedSemanticVectorSearch(query string) []models.Article {
 	var result []models.Article
-
+	ai.EmbedSearch(query)
 	return result
 }
 

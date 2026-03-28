@@ -147,3 +147,40 @@ func PromptEmbedAi(query string) ([][]float32, error) {
 func EmbedArticle(article models.Article) {
 	EmbedQueryAndUpsert(article.ID, "articles", ""+article.Title+". "+article.Body)
 }
+
+func EmbedSearch(query string) {
+	embededQuery, err := PromptEmbedAi(query)
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+		panic(err)
+	}
+
+	SearchEmbedDistance(embededQuery[0])
+}
+
+func SearchEmbedDistance(embedding []float32) {
+	client, err := qdrant.NewClient(&qdrant.Config{
+		Host:                   "qdrant",
+		Port:                   6334,
+		SkipCompatibilityCheck: true,
+		UseTLS:                 false,
+	})
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+		panic(err)
+	}
+	limit := uint64(5)
+	scoredResutls, err := client.Query(context.Background(), &qdrant.QueryPoints{
+		CollectionName: "articles",
+		Query:          qdrant.NewQueryDense(embedding),
+		Limit:          &limit,
+	})
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+		panic(err)
+	}
+	fmt.Println(scoredResutls)
+}
