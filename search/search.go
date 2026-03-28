@@ -88,7 +88,7 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery
 func search(query string) []models.Article {
 	// zap := logger.GetLogger()
 	// db, err := database.GetDB()
-
+	rankedSemanticVectorSearch(query)
 	// rankedSemanticVectorSearch(query)
 	// return rankedFuzzySearch(articles, query)
 	return []models.Article{
