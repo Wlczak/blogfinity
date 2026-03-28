@@ -10,6 +10,7 @@ import (
 	"github.com/Wlczak/blogfinity/ai"
 	"github.com/Wlczak/blogfinity/articles"
 	"github.com/Wlczak/blogfinity/database"
+	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/Wlczak/blogfinity/search"
 	"github.com/Wlczak/blogfinity/statistics"
@@ -65,7 +66,14 @@ func main() {
 	if err != nil {
 		zap.Error(err.Error())
 	}
+
 	database.Migrate(db)
+
+	var articlesToEmbed []models.Article
+	db.Where(&models.Article{IsEmbeded: false}).Find(&articlesToEmbed)
+	for _, article := range articlesToEmbed {
+		ai.EmbedArticle(article)
+	}
 
 	queueTransport := make(chan *ai.AiQuery)
 	var queue = ai.NewQueue()

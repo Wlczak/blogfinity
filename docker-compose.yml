@@ -27,6 +27,8 @@ services:
         volumes:
             - qdrant_data:/qdrant/storage
         restart: unless-stopped
+        networks:
+            - blogfinity-net
 
 volumes:
     qdrant_data:
