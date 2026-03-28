@@ -150,6 +150,24 @@ func EmbedArticle(article models.Article) {
 	EmbedQueryAndUpsert(article.ID, "articles", ""+article.Title+". "+article.Body)
 }
 
+func EmbedAllUnembeddedArticles() {
+	db, err := database.GetDB()
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+		panic(err)
+	}
+
+	var articlesToEmbed []models.Article
+	db.Where("is_embeded = ?", false).Find(&articlesToEmbed)
+
+	for _, article := range articlesToEmbed {
+		EmbedArticle(article)
+		article.IsEmbeded = true
+		db.Save(&article)
+	}
+}
+
 func EmbedSearch(query string) []models.Article {
 	embededQuery, err := PromptEmbedAi(query)
 	if err != nil {

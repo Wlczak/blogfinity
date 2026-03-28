@@ -116,6 +116,12 @@ func (q *Queue) Copy() []*AiQuery {
 	return dst
 }
 
+func (q *Queue) Len() int {
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
+	return len(q.queries)
+}
+
 func (q *Queue) AddConn(conn *websocket.Conn, articleId int) {
 	zap := logger.GetLogger()
 	q.mutex.Lock()

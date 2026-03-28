@@ -87,7 +87,7 @@ func CheckQueue(queue *Queue) {
 				article.Create(db)
 
 			}
-			if query.Type == "body" {
+				if query.Type == "body" {
 
 				prompt1 := " i need you to generate an article body based on this article title: “"
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long. Do not put the body into quotes."
@@ -129,10 +129,16 @@ func CheckQueue(queue *Queue) {
 						}
 					}
 
-					article.Update(db)
+						article.Update(db)
+
+						if article.IsEmbeded == false {
+							EmbedArticle(article)
+							article.IsEmbeded = true
+							db.Model(&article).Update("is_embeded", true)
+						}
+					}
 				}
-			}
-			for _, conn := range query.EventConns {
+				for _, conn := range query.EventConns {
 				go func(conn *websocket.Conn) {
 					time.Sleep(1 * time.Second)
 					err := conn.Close()
@@ -143,6 +149,9 @@ func CheckQueue(queue *Queue) {
 				}(conn)
 			}
 			queue.Pop()
+			if queue.Len() == 0 {
+				EmbedAllUnembeddedArticles()
+			}
 		} else {
 			time.Sleep(1 * time.Second)
 		}
