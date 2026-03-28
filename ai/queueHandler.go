@@ -131,7 +131,7 @@ func CheckQueue(queue *Queue) {
 
 						article.Update(db)
 
-						if article.IsEmbeded == false {
+						if article.Body != "" && article.IsEmbeded == false {
 							EmbedArticle(article)
 							article.IsEmbeded = true
 							db.Model(&article).Update("is_embeded", true)

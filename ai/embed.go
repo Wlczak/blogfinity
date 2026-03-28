@@ -15,6 +15,7 @@ import (
 )
 
 const qdrantEmbeddingVectorName = "embedding"
+const qdrantArticlesCollectionName = "articles"
 const semanticSimilarityThreshold float32 = 0.75
 
 func EmbedQueryAndUpsert(id int, collectionName string, query string) {
@@ -147,7 +148,60 @@ func PromptEmbedAi(query string) ([][]float32, error) {
 }
 
 func EmbedArticle(article models.Article) {
-	EmbedQueryAndUpsert(article.ID, "articles", ""+article.Title+". "+article.Body)
+	if article.Body == "" {
+		return
+	}
+
+	EmbedQueryAndUpsert(article.ID, qdrantArticlesCollectionName, ""+article.Title+". "+article.Body)
+}
+
+func EnsureQdrantCollectionExists(collectionName string) error {
+	client, err := qdrant.NewClient(&qdrant.Config{
+		Host:                   "qdrant",
+		Port:                   6334,
+		SkipCompatibilityCheck: true,
+		UseTLS:                 false,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = client.GetCollectionInfo(context.Background(), collectionName)
+	if err == nil {
+		return nil
+	}
+
+	db, err := database.GetDB()
+	if err != nil {
+		return err
+	}
+
+	var sampleArticles []models.Article
+	tx := db.Where("body <> ''").Order("id ASC").Limit(1).Find(&sampleArticles)
+	if tx.Error != nil {
+		return tx.Error
+	}
+	if len(sampleArticles) == 0 {
+		return nil
+	}
+
+	embedings, err := PromptEmbedAi(sampleArticles[0].Title + ". " + sampleArticles[0].Body)
+	if err != nil {
+		return err
+	}
+	if len(embedings) == 0 {
+		return nil
+	}
+
+	return client.CreateCollection(context.Background(), &qdrant.CreateCollection{
+		CollectionName: collectionName,
+		VectorsConfig: qdrant.NewVectorsConfigMap(map[string]*qdrant.VectorParams{
+			qdrantEmbeddingVectorName: {
+				Size:     uint64(len(embedings[0])),
+				Distance: qdrant.Distance_Cosine,
+			},
+		}),
+	})
 }
 
 func EmbedAllUnembeddedArticles() {
@@ -159,9 +213,12 @@ func EmbedAllUnembeddedArticles() {
 	}
 
 	var articlesToEmbed []models.Article
-	db.Where("is_embeded = ?", false).Find(&articlesToEmbed)
+	db.Where("is_embeded = ? AND body <> ''", false).Find(&articlesToEmbed)
 
 	for _, article := range articlesToEmbed {
+		if article.Body == "" {
+			continue
+		}
 		EmbedArticle(article)
 		article.IsEmbeded = true
 		db.Save(&article)

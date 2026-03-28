@@ -66,7 +66,12 @@ func main() {
 		zap.Error(err.Error())
 	}
 
-	database.Migrate(db)
+		database.Migrate(db)
+
+		err = ai.EnsureQdrantCollectionExists("articles")
+		if err != nil {
+			zap.Error(err.Error())
+		}
 
 		ai.EmbedAllUnembeddedArticles()
 

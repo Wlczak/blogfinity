@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Wlczak/blogfinity/ai"
+	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -86,9 +87,19 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery
 }
 
 func search(query string) []models.Article {
-	// zap := logger.GetLogger()
-	// db, err := database.GetDB()
-	return rankedSemanticVectorSearch(query)
+	semanticResults := rankedSemanticVectorSearch(query)
+	if len(semanticResults) > 0 {
+		return semanticResults
+	}
+
+	db, err := database.GetDB()
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+		return nil
+	}
+
+	return RankedFuzzySearch(models.GetArticles(db, 500), query)
 }
 
 func rankedSemanticVectorSearch(query string) []models.Article {
