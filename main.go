@@ -70,9 +70,11 @@ func main() {
 	database.Migrate(db)
 
 	var articlesToEmbed []models.Article
-	db.Where(&models.Article{IsEmbeded: false}).Find(&articlesToEmbed)
+	db.Where("is_embeded = ?", false).Find(&articlesToEmbed)
 	for _, article := range articlesToEmbed {
 		ai.EmbedArticle(article)
+		article.IsEmbeded = true
+		db.Save(&article)
 	}
 
 	queueTransport := make(chan *ai.AiQuery)
