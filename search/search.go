@@ -89,7 +89,7 @@ func search(query string) []models.Article {
 	// zap := logger.GetLogger()
 	// db, err := database.GetDB()
 
-	rankedSemanticVectorSearch(query)
+	// rankedSemanticVectorSearch(query)
 	// return rankedFuzzySearch(articles, query)
 	return []models.Article{}
 }
@@ -100,7 +100,7 @@ func rankedSemanticVectorSearch(query string) []models.Article {
 	return result
 }
 
-func rankedFuzzySearch(articles []models.Article, query string) []models.Article {
+func RankedFuzzySearch(articles []models.Article, query string) []models.Article {
 	var result []models.Article
 	var titles []string
 	titleMap := make(map[string]models.Article)
