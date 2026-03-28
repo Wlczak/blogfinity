@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/Wlczak/blogfinity/database"
 	"github.com/Wlczak/blogfinity/database/models"
 	"github.com/Wlczak/blogfinity/logger"
 	ollama "github.com/ollama/ollama/api"
@@ -14,6 +15,7 @@ import (
 )
 
 const qdrantEmbeddingVectorName = "embedding"
+const semanticSimilarityThreshold float32 = 0.75
 
 func EmbedQueryAndUpsert(id int, collectionName string, query string) {
 	zap := logger.GetLogger()
@@ -148,18 +150,29 @@ func EmbedArticle(article models.Article) {
 	EmbedQueryAndUpsert(article.ID, "articles", ""+article.Title+". "+article.Body)
 }
 
-func EmbedSearch(query string) {
+func EmbedSearch(query string) []models.Article {
 	embededQuery, err := PromptEmbedAi(query)
 	if err != nil {
 		zap := logger.GetLogger()
 		zap.Error(err.Error())
-		panic(err)
+		return nil
 	}
 
-	SearchEmbedDistance(embededQuery[0])
+	if len(embededQuery) == 0 {
+		return nil
+	}
+
+	results, err := SearchEmbedDistance(embededQuery[0])
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+		return nil
+	}
+
+	return results
 }
 
-func SearchEmbedDistance(embedding []float32) {
+func SearchEmbedDistance(embedding []float32) ([]models.Article, error) {
 	client, err := qdrant.NewClient(&qdrant.Config{
 		Host:                   "qdrant",
 		Port:                   6334,
@@ -172,15 +185,39 @@ func SearchEmbedDistance(embedding []float32) {
 		panic(err)
 	}
 	limit := uint64(5)
-	scoredResutls, err := client.Query(context.Background(), &qdrant.QueryPoints{
+	vectorName := qdrantEmbeddingVectorName
+	scoreThreshold := semanticSimilarityThreshold
+	scoredResults, err := client.Query(context.Background(), &qdrant.QueryPoints{
 		CollectionName: "articles",
 		Query:          qdrant.NewQueryDense(embedding),
+		Using:          &vectorName,
 		Limit:          &limit,
+		ScoreThreshold: &scoreThreshold,
 	})
 	if err != nil {
 		zap := logger.GetLogger()
 		zap.Error(err.Error())
-		panic(err)
+		return nil, err
 	}
-	fmt.Println(scoredResutls)
+
+	db, err := database.GetDB()
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]models.Article, 0, len(scoredResults))
+	for _, scoredResult := range scoredResults {
+		if scoredResult == nil || scoredResult.GetId() == nil {
+			continue
+		}
+
+		articleID := scoredResult.GetId().GetNum()
+		if articleID == 0 {
+			continue
+		}
+
+		results = append(results, models.GetArticleById(db, int(articleID)))
+	}
+
+	return results, nil
 }
