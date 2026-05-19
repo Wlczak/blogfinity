@@ -1,25 +1,39 @@
 services:
-    blogfinity:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        volumes:
-            - ../:/app # For local development
-            # - ../db/:/app/db/
-            # - ../logger/logs/:/app/logger/logs/
-            # - ../:/app/conf/
-        working_dir: /app
-        restart: always
-        env_file:
-            - ../.env
-        environment:
-            - OLLAMA_SERVER_IPS=${OLLAMA_SERVER_IPS}
+    # blogfinity:
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     volumes:
+    #         - ../:/app # For local development
+    #         # - ../db/:/app/db/
+    #         # - ../logger/logs/:/app/logger/logs/
+    #         # - ../:/app/conf/
+    #     working_dir: /app
+    #     restart: always
+    #     env_file:
+    #         - ../.env
+    #     environment:
+    #         - OLLAMA_SERVER_IPS=${OLLAMA_SERVER_IPS}
+    #     ports:
+    #         - "1111:8080"
+    #     command: go run .
+    #     networks:
+    #         - blogfinity-net
+
+    qdrant:
+        image: qdrant/qdrant:v1.17-unprivileged
         ports:
-            - "1111:8080"
-        command: go run .
+            - "6333:6333" # REST API + dashboard
+            - "6334:6334" # REST API + dashboard
+        volumes:
+            - qdrant_data:/qdrant/storage
+        restart: unless-stopped
         networks:
             - blogfinity-net
 
 networks:
     blogfinity-net:
         name: blogfinity-net
+
+volumes:
+    qdrant_data:

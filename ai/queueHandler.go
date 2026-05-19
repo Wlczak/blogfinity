@@ -78,27 +78,31 @@ func CheckQueue(queue *Queue) {
 
 				article := models.Article{Title: response.Text, Body: "", Author: response.Model}
 
-				db, err := database.GetDB()
+					db, err := database.GetDB()
 
-				if err != nil {
-					zap.Error(err.Error())
-				}
+					if err != nil {
+						zap.Error(err.Error())
+						queue.Pop()
+						continue
+					}
 
-				article.Create(db)
+					article.Create(db)
 
 			}
-			if query.Type == "body" {
+				if query.Type == "body" {
 
 				prompt1 := " i need you to generate an article body based on this article title: “"
 				prompt2 := "“, the answer must be in the form of a non formatted string and must be completely plain text. Please output only the body and nothing else since the output is not filtered and will end up directly on the website. Also be creative and make sure the body is around 1-3 paragraphs long. Do not put the body into quotes."
 
-				db, err := database.GetDB()
+					db, err := database.GetDB()
 
-				if err != nil {
-					zap.Error(err.Error())
-				}
+					if err != nil {
+						zap.Error(err.Error())
+						queue.Pop()
+						continue
+					}
 
-				article := query.Article
+					article := query.Article
 				if !article.HasBody(db) {
 					time.Sleep(1 * time.Second)
 					for _, conn := range query.EventConns {
@@ -129,10 +133,16 @@ func CheckQueue(queue *Queue) {
 						}
 					}
 
-					article.Update(db)
+						article.Update(db)
+
+						if article.Body != "" && article.IsEmbeded == false {
+							EmbedArticle(article)
+							article.IsEmbeded = true
+							db.Model(&article).Update("is_embeded", true)
+						}
+					}
 				}
-			}
-			for _, conn := range query.EventConns {
+				for _, conn := range query.EventConns {
 				go func(conn *websocket.Conn) {
 					time.Sleep(1 * time.Second)
 					err := conn.Close()
@@ -143,6 +153,9 @@ func CheckQueue(queue *Queue) {
 				}(conn)
 			}
 			queue.Pop()
+			if queue.Len() == 0 {
+				EmbedAllUnembeddedArticles()
+			}
 		} else {
 			time.Sleep(1 * time.Second)
 		}
@@ -184,41 +197,54 @@ func PromptAi(query string, model string, eventConns []*websocket.Conn) (PrompRe
 		return PrompResult{Text: "error", Model: model}, errors.New("no ollama server available")
 	}
 	fmt.Println("Prompting AI with query: " + query)
-	requestJson := []byte(`{
-							  "model": "` + model + `",
-							  "options": {
-							    "temperature": 0.6
-							  },
-							  "prompt": "` + query + `",
-							  "stream": true,
-							  "format": {
-							    "type": "object",
-							    "properties": {
-							      "output": {
-							        "type": "string"
-							      }
-							    },
-							    "required": [
-							      "output"
-							    ]
-							  }
-							}`)
+	type aiGenerateRequest struct {
+		Model   string         `json:"model"`
+		Options map[string]any `json:"options"`
+		Prompt  string         `json:"prompt"`
+		Stream  bool           `json:"stream"`
+		Format  map[string]any `json:"format"`
+	}
 
-	request, err := http.NewRequestWithContext(ctx, "POST", "http://"+serverUrl+":11434/api/generate", bytes.NewBuffer(requestJson))
-	request.Header.Set("Content-Type", "application/json")
-
+	requestBody, err := json.Marshal(aiGenerateRequest{
+		Model:  model,
+		Options: map[string]any{
+			"temperature": 0.6,
+		},
+		Prompt: query,
+		Stream: true,
+		Format: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"output": map[string]any{
+					"type": "string",
+				},
+			},
+			"required": []string{"output"},
+		},
+	})
 	if err != nil {
 		zap.Error(err.Error())
+		return PrompResult{Text: "error", Model: model}, err
 	}
+
+	request, err := http.NewRequestWithContext(ctx, "POST", "http://"+serverUrl+":11434/api/generate", bytes.NewBuffer(requestBody))
+	if err != nil {
+		zap.Error(err.Error())
+		return PrompResult{Text: "error", Model: model}, err
+	}
+	request.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
 		zap.Error(err.Error())
+		return PrompResult{Text: "error", Model: model}, err
 	}
 	defer func() {
-		if err := response.Body.Close(); err != nil {
-			zap.Error(err.Error())
+		if response != nil && response.Body != nil {
+			if err := response.Body.Close(); err != nil {
+				zap.Error(err.Error())
+			}
 		}
 	}()
 

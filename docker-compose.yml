@@ -20,6 +20,18 @@ services:
         command: ./blogfinity
         networks:
             - blogfinity-net
+    qdrant:
+        image: qdrant/qdrant:v1.17-unprivileged
+        ports:
+            - "6333:6333" # REST API + dashboard
+        volumes:
+            - qdrant_data:/qdrant/storage
+        restart: unless-stopped
+        networks:
+            - blogfinity-net
+
+volumes:
+    qdrant_data:
 
 networks:
     blogfinity-net:

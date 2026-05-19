@@ -87,19 +87,26 @@ func HandleSearch(w http.ResponseWriter, r *http.Request, queue chan *ai.AiQuery
 }
 
 func search(query string) []models.Article {
-	zap := logger.GetLogger()
-	db, err := database.GetDB()
-
-	if err != nil {
-		zap.Error(err.Error())
+	semanticResults := rankedSemanticVectorSearch(query)
+	if len(semanticResults) > 0 {
+		return semanticResults
 	}
 
-	articles := models.GetArticles(db, 500)
+	db, err := database.GetDB()
+	if err != nil {
+		zap := logger.GetLogger()
+		zap.Error(err.Error())
+		return nil
+	}
 
-	return rankedFuzzySearch(articles, query)
+	return RankedFuzzySearch(models.GetArticles(db, 500), query)
 }
 
-func rankedFuzzySearch(articles []models.Article, query string) []models.Article {
+func rankedSemanticVectorSearch(query string) []models.Article {
+	return ai.EmbedSearch(query)
+}
+
+func RankedFuzzySearch(articles []models.Article, query string) []models.Article {
 	var result []models.Article
 	var titles []string
 	titleMap := make(map[string]models.Article)

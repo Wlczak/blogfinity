@@ -65,7 +65,15 @@ func main() {
 	if err != nil {
 		zap.Error(err.Error())
 	}
-	database.Migrate(db)
+
+		database.Migrate(db)
+
+		err = ai.EnsureQdrantCollectionExists("articles")
+		if err != nil {
+			zap.Error(err.Error())
+		}
+
+		ai.EmbedAllUnembeddedArticles()
 
 	queueTransport := make(chan *ai.AiQuery)
 	var queue = ai.NewQueue()
