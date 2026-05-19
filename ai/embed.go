@@ -24,7 +24,7 @@ func EmbedQueryAndUpsert(id int, collectionName string, query string) {
 
 	if err != nil {
 		zap.Error(err.Error())
-		panic(err)
+		return
 	}
 
 	for _, embed := range embedings {
@@ -42,14 +42,14 @@ func UpsertEmbedding(id int, collectionName string, embedings []float32) {
 	if err != nil {
 		zap := logger.GetLogger()
 		zap.Error(err.Error())
-		panic(err)
+		return
 	}
 
 	vectors, err := buildQdrantVectors(client, collectionName, embedings)
 	if err != nil {
 		zap := logger.GetLogger()
 		zap.Error(err.Error())
-		panic(err)
+		return
 	}
 
 	_, err = client.Upsert(context.Background(), &qdrant.UpsertPoints{
@@ -65,7 +65,7 @@ func UpsertEmbedding(id int, collectionName string, embedings []float32) {
 	if err != nil {
 		zap := logger.GetLogger()
 		zap.Error(err.Error())
-		panic(err)
+		return
 	}
 }
 
@@ -209,7 +209,7 @@ func EmbedAllUnembeddedArticles() {
 	if err != nil {
 		zap := logger.GetLogger()
 		zap.Error(err.Error())
-		panic(err)
+		return
 	}
 
 	var articlesToEmbed []models.Article
@@ -257,7 +257,7 @@ func SearchEmbedDistance(embedding []float32) ([]models.Article, error) {
 	if err != nil {
 		zap := logger.GetLogger()
 		zap.Error(err.Error())
-		panic(err)
+		return nil, err
 	}
 	limit := uint64(5)
 	vectorName := qdrantEmbeddingVectorName
